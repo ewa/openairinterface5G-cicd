@@ -971,6 +971,64 @@ void fill_default_secondaryCellGroup(NR_ServingCellConfigCommon_t *servingcellco
  pucchfmt2->simultaneousHARQ_ACK_CSI=NULL;
  pucch_Config->schedulingRequestResourceToAddModList=NULL;
  pucch_Config->schedulingRequestResourceToReleaseList=NULL;
+
+
+
+
+// for scheduling requestresource
+pucch_Config->schedulingRequestResourceToAddModList = calloc(1,sizeof(*pucch_Config->schedulingRequestResourceToAddModList));
+NR_SchedulingRequestResourceConfig_t *schedulingRequestResourceConfig = calloc(1,sizeof(*schedulingRequestResourceConfig));
+schedulingRequestResourceConfig->schedulingRequestResourceId = 0;
+schedulingRequestResourceConfig->schedulingRequestID = 0;
+schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl10;  //could be changed
+schedulingRequestResourceConfig->periodicityAndOffset->choice.sl320 = 7;
+*schedulingRequestResourceConfig->resource = 1;
+ASN_SEQUENCE_ADD(&pucch_Config->schedulingRequestResourceToAddModList->list,schedulingRequestResourceConfig);
+
+
+
+// for schedulingrequestconfig
+secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig = calloc(1,sizeof(*secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig)); 
+secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToAddModList = calloc(1,sizeof(*secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToAddModList)); 
+secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToReleaseList = calloc(1,sizeof(*secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToReleaseList)); 
+NR_SchedulingRequestToAddMod_t *SchedulingRequestConf = calloc(1,sizeof(*SchedulingRequestConf));
+SchedulingRequestConf->schedulingRequestId = 0;  //Could be changed
+*SchedulingRequestConf->sr_ProhibitTimer = NR_SchedulingRequestToAddMod__sr_ProhibitTimer_ms8; //could be changed
+SchedulingRequestConf->sr_TransMax = NR_SchedulingRequestToAddMod__sr_TransMax_n32; ; //could be changed
+ASN_SEQUENCE_ADD(&secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToAddModList->list,SchedulingRequestConf);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  pucch_Config->multi_CSI_PUCCH_ResourceList=NULL;
  pucch_Config->dl_DataToUL_ACK = calloc(1,sizeof(*pucch_Config->dl_DataToUL_ACK));
  long *delay[8];

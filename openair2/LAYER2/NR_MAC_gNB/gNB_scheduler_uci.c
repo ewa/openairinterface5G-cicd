@@ -41,7 +41,7 @@ void nr_schedule_pucch(int Mod_idP,
                        sub_frame_t slotP) {
 
   uint16_t O_csi, O_ack, O_uci;
-  uint8_t O_sr = 0; // no SR in PUCCH implemented for now
+  uint8_t O_sr =0 ; // no SR in PUCCH implemented for now
   NR_ServingCellConfigCommon_t *scc = RC.nrmac[Mod_idP]->common_channels->ServingCellConfigCommon;
   NR_UE_info_t *UE_info = &RC.nrmac[Mod_idP]->UE_info;
   AssertFatal(UE_info->active[UE_id],"Cannot find UE_id %d is not active\n",UE_id);
@@ -58,6 +58,7 @@ void nr_schedule_pucch(int Mod_idP,
       curr_pucch = &UE_info->UE_sched_ctrl[UE_id].sched_pucch[k][l];
       O_ack = curr_pucch->dai_c;
       O_csi = curr_pucch->csi_bits;
+      //O_sr = curr_pucch->sr_flag;
       O_uci = O_ack + O_csi + O_sr;
       if ((O_uci>0) && (frameP == curr_pucch->frame) && (slotP == curr_pucch->ul_slot)) {
         UL_tti_req->SFN = curr_pucch->frame;
@@ -68,7 +69,7 @@ void nr_schedule_pucch(int Mod_idP,
         memset(pucch_pdu,0,sizeof(nfapi_nr_pucch_pdu_t));
         UL_tti_req->n_pdus+=1;
 
-        LOG_D(MAC,"Scheduling pucch reception for frame %d slot %d with (%d, %d, %d) (SR ACK, CSI) bits\n",
+        LOG_I(MAC,"Scheduling pucch reception for frame %d slot %d with (%d, %d, %d) (SR ACK, CSI) bits\n",
               frameP,slotP,O_sr,O_ack,curr_pucch->csi_bits);
 
         nr_configure_pucch(pucch_pdu,
@@ -207,7 +208,7 @@ void nr_csi_meas_reporting(int Mod_idP,
     AssertFatal(csirep->reportConfigType.choice.periodic!=NULL,"Only periodic CSI reporting is implemented currently");
     int period, offset, sched_slot;
     csi_period_offset(csirep,&period,&offset);
-    sched_slot = (period+offset)%n_slots_frame;
+    sched_slot = (period+offset)%n_slots_frame; // what's the context of the offset here, is it the same as the period ??
     // prepare to schedule csi measurement reception according to 5.2.1.4 in 38.214
     // preparation is done in first slot of tdd period
     if ( (frame%(period/n_slots_frame)==(offset/n_slots_frame)) && (slot==((sched_slot/slots_per_tdd)*slots_per_tdd))) {
@@ -579,3 +580,136 @@ uint16_t compute_pucch_prb_size(uint8_t format,
   }
 
 }
+
+
+
+
+// for the SR functions/Imad/
+
+
+void nr_sr_reporting (int Mod_idp, int UE_id,sub_frame_t slot, int n_slots_frame, frame_t SFN, int *PucchID){   // is the slot is the same as sub-frame like it depends on the SCS (if it's 30 KHz then the subframe is 2 slots.
+
+NR_UE_info_t *UE_info = &RC.nrmac[Mod_idp]->UE_info;
+NR_sched_pucch *curr_pucch;
+NR_SchedulingRequestResourceConfig_t *SchedulingRequestResourceConfig;
+NR_CellGroupConfig_t *secondaryCellGroup = UE_info->secondaryCellGroup[UE_id];
+NR_SchedulingRequestConfig_t *schedulingRequestConfig = secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig;
+NR_BWP_Uplink_t *uwp=secondaryCellGroup->spCellConfig->spCellConfigDedicated->uplinkConfig->uplinkBWP_ToAddModList->list.array[0];
+NR_PUCCH_Config_t *pucch_Config = uwp->bwp_Dedicated->pucch_Config->choice.setup;
+
+
+  AssertFatal(pucch_Config->schedulingRequestResourceToAddModList->list.count>0,"NO SR configuration available");
+
+for (int SR_resource_id =0; SR_resource_id < pucch_Config->schedulingRequestResourceToAddModList->list.count;SR_resource_id++)
+{
+SchedulingRequestResourceConfig = pucch_Config->schedulingRequestResourceToAddModList->list.array[SR_resource_id]; // to makesure later of the index.
+NR_SchedulingRequestResourceId_t schedulingRequestResourceId = SchedulingRequestResourceConfig->schedulingRequestResourceId;
+NR_SchedulingRequestId_t schedulingRequest_ID = SchedulingRequestResourceConfig->schedulingRequestID;
+NR_PUCCH_ResourceId_t *PucchResourceId = SchedulingRequestResourceConfig->resource;
+
+for (int SRConfig =0; SRConfig<schedulingRequestConfig->schedulingRequestToAddModList->list.count;SRConfig++){
+	
+	NR_SchedulingRequestToAddMod_t *SchedulingRequestToAddMod = schedulingRequestConfig->schedulingRequestToAddModList->list.array[SRConfig];
+	if(SchedulingRequestToAddMod->schedulingRequestId == schedulingRequest_ID){
+        long *prohibitTimer = SchedulingRequestToAddMod->sr_ProhibitTimer;}
+	
+}
+
+			   
+	int SR_period; int SR_offset;// not sure about the offset here. 
+// let's assume we retrieved the SCS and assign the periodicity based on that.		   
+			   
+			   
+        periodicity__SRR(SchedulingRequestResourceConfig,&SR_period,&SR_offset);
+        //for (int SRslot=0;SRslot<n_slots_frame;j++){
+		if (((SFN*n_slots_frame)+slot-SR_offset)%SR_period ==0){  
+			 // not sure about SR_offset yet.
+		
+			curr_pucch = &UE_info->UE_sched_ctrl[UE_id].sched_pucch[slot][0];
+	                curr_pucch->sr_flag=true;
+			curr_pucch->frame = SFN;
+			curr_pucch->ul_slot = slot;
+                        *PucchID = *PucchResourceId;
+
+
+               LOG_I(MAC,"Scheduling Request identified for frame %d slot %d with %d SR  bit\n",SFN,slot,curr_pucch->sr_flag);
+			 
+					 
+				 
+	        } 
+   	    }
+	} 
+
+
+
+
+
+           
+void periodicity__SRR (NR_SchedulingRequestResourceConfig_t *SchedulingReqRec, int *period, int *offset){
+	
+	NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR P_O = SchedulingReqRec->periodicityAndOffset->present;
+	
+	switch (P_O){
+		
+		case NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl1:
+		*period = 1;
+		*offset = SchedulingReqRec->periodicityAndOffset->choice.sl1;
+		break;
+		case NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl2:
+		*period = 2;
+		*offset = SchedulingReqRec->periodicityAndOffset->choice.sl2;
+		break;
+		case NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl4:
+		*period = 4;
+		*offset = SchedulingReqRec->periodicityAndOffset->choice.sl4;
+		break;
+		case NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl5:
+		*period = 5;
+		*offset = SchedulingReqRec->periodicityAndOffset->choice.sl5;
+		break;
+	        case NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl8:
+		*period = 8;
+		*offset = SchedulingReqRec->periodicityAndOffset->choice.sl8;
+		break;
+		case NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl10:
+		*period = 10;
+		*offset = SchedulingReqRec->periodicityAndOffset->choice.sl10;
+		break;
+		case NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl16:
+		*period = 16;
+		*offset = SchedulingReqRec->periodicityAndOffset->choice.sl16;
+		break;
+		case NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl20:
+		*period = 20;
+		*offset = SchedulingReqRec->periodicityAndOffset->choice.sl20;
+		break;
+		case NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl40:
+		*period = 40;
+		*offset = SchedulingReqRec->periodicityAndOffset->choice.sl40;
+		break;
+		case NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl80:
+		*period = 80;
+		*offset = SchedulingReqRec->periodicityAndOffset->choice.sl80;
+		break;
+		case NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl160:
+		*period = 160;
+		*offset = SchedulingReqRec->periodicityAndOffset->choice.sl160;
+		break;
+		case NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl320:
+		*period = 320;
+		*offset = SchedulingReqRec->periodicityAndOffset->choice.sl320;
+		break;
+		case NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl640:
+		*period = 640;
+		*offset = SchedulingReqRec->periodicityAndOffset->choice.sl640;
+		break;
+	default:
+	AssertFatal(1==0,"No periodicityAndOffset resources found in schedulingrequestresourceconfig");
+
+        }
+	
+}
+
+
+
+

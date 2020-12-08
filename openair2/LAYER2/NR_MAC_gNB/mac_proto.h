@@ -410,4 +410,19 @@ int16_t ssb_index_from_prach(module_id_t module_idP,
 void find_SSB_and_RO_available(module_id_t module_idP);
 
 void handle_nr_uci(NR_UL_IND_t *UL_info, NR_UE_sched_ctrl_t *sched_ctrl, NR_mac_stats_t *stats, int target_snrx10);
+
+
+
+void nr_sr_reporting (int Mod_idp,
+                      int UE_id,
+                      sub_frame_t slotP,
+                      int n_slots_frame,
+                      frame_t frameP,
+                      int *pucchID);
+
+
+void periodicity__SRR (NR_SchedulingRequestResourceConfig_t *SchedulingReqRecconf,
+                       int *period,
+                       int *offset);
+
 #endif /*__LAYER2_NR_MAC_PROTO_H__*/

@@ -41,7 +41,7 @@ void nr_schedule_pucch(int Mod_idP,
                        sub_frame_t slotP) {
 
   uint16_t O_csi, O_ack, O_uci;
-  uint8_t O_sr =0 ; // no SR in PUCCH implemented for now
+  uint8_t O_sr;
   NR_ServingCellConfigCommon_t *scc = RC.nrmac[Mod_idP]->common_channels->ServingCellConfigCommon;
   NR_UE_info_t *UE_info = &RC.nrmac[Mod_idP]->UE_info;
   AssertFatal(UE_info->active[UE_id],"Cannot find UE_id %d is not active\n",UE_id);
@@ -58,7 +58,7 @@ void nr_schedule_pucch(int Mod_idP,
       curr_pucch = &UE_info->UE_sched_ctrl[UE_id].sched_pucch[k][l];
       O_ack = curr_pucch->dai_c;
       O_csi = curr_pucch->csi_bits;
-      //O_sr = curr_pucch->sr_flag;
+      O_sr = curr_pucch->sr_flag;
       O_uci = O_ack + O_csi + O_sr;
       if ((O_uci>0) && (frameP == curr_pucch->frame) && (slotP == curr_pucch->ul_slot)) {
         UL_tti_req->SFN = curr_pucch->frame;
@@ -582,7 +582,7 @@ uint16_t compute_pucch_prb_size(uint8_t format,
 }
 
 
-void nr_sr_reporting (int Mod_idp, int UE_id,sub_frame_t slot, int n_slots_frame, frame_t SFN, int *PucchID){
+void nr_sr_reporting (int Mod_idp, int UE_id,sub_frame_t slot, int n_slots_frame, frame_t SFN){
 
   NR_UE_info_t *UE_info = &RC.nrmac[Mod_idp]->UE_info;
   NR_sched_pucch *curr_pucch;
@@ -612,13 +612,13 @@ void nr_sr_reporting (int Mod_idp, int UE_id,sub_frame_t slot, int n_slots_frame
     periodicity__SRR(SchedulingRequestResourceConfig,&SR_period,&SR_offset);
     //for (int SRslot=0;SRslot<n_slots_frame;j++){
     if (((SFN*n_slots_frame)+slot-SR_offset)%SR_period ==0){
-    // not sure about SR_offset yet.
+    
 
       curr_pucch = &UE_info->UE_sched_ctrl[UE_id].sched_pucch[slot][0];
       curr_pucch->sr_flag=true;
       curr_pucch->frame = SFN;
       curr_pucch->ul_slot = slot;
-      *PucchID = *PucchResourceId;
+      curr_pucch->resource_indicator = *PucchResourceId;
 
       LOG_I(MAC,"Scheduling Request identified for frame %d slot %d with %d SR  bit\n",SFN,slot,curr_pucch->sr_flag);
     }

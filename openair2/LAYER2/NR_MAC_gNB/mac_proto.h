@@ -417,9 +417,8 @@ void nr_sr_reporting (int Mod_idp,
                       int UE_id,
                       sub_frame_t slotP,
                       int n_slots_frame,
-                      frame_t frameP,
-                      int *pucchID);
-
+                      frame_t frameP);
+                      
 
 void periodicity__SRR (NR_SchedulingRequestResourceConfig_t *SchedulingReqRecconf,
                        int *period,

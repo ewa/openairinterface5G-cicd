@@ -121,7 +121,16 @@ void fill_default_secondaryCellGroup(NR_ServingCellConfigCommon_t *servingcellco
   ASN_SEQUENCE_ADD(&secondaryCellGroup->rlc_BearerToAddModList->list, RLC_BearerConfig);
   secondaryCellGroup->mac_CellGroupConfig=calloc(1,sizeof(*secondaryCellGroup->mac_CellGroupConfig));
   secondaryCellGroup->mac_CellGroupConfig->drx_Config = NULL;
-  secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig = NULL;
+
+  secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig = calloc(1,sizeof(*secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig));
+  secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToAddModList = calloc(1,sizeof(*secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToAddModList));
+  NR_SchedulingRequestToAddMod_t *SchedulingRequestConf = calloc(1,sizeof(*SchedulingRequestConf));
+  SchedulingRequestConf->schedulingRequestId = 0;  //Could be changed
+  *SchedulingRequestConf->sr_ProhibitTimer = NR_SchedulingRequestToAddMod__sr_ProhibitTimer_ms8; //could be changed
+  SchedulingRequestConf->sr_TransMax = NR_SchedulingRequestToAddMod__sr_TransMax_n32; ; //could be changed
+  ASN_SEQUENCE_ADD(&secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToAddModList->list,SchedulingRequestConf);
+  secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToReleaseList = NULL;
+
   secondaryCellGroup->mac_CellGroupConfig->bsr_Config=calloc(1,sizeof(*secondaryCellGroup->mac_CellGroupConfig->bsr_Config));
   secondaryCellGroup->mac_CellGroupConfig->bsr_Config->periodicBSR_Timer = NR_BSR_Config__periodicBSR_Timer_sf80;
   secondaryCellGroup->mac_CellGroupConfig->bsr_Config->retxBSR_Timer     = NR_BSR_Config__retxBSR_Timer_sf320;
@@ -969,65 +978,18 @@ void fill_default_secondaryCellGroup(NR_ServingCellConfigCommon_t *servingcellco
  pucchfmt2->nrofSlots=NULL;
  pucchfmt2->pi2BPSK=NULL;
  pucchfmt2->simultaneousHARQ_ACK_CSI=NULL;
- pucch_Config->schedulingRequestResourceToAddModList=NULL;
+
+ // for scheduling requestresource
+ pucch_Config->schedulingRequestResourceToAddModList = calloc(1,sizeof(*pucch_Config->schedulingRequestResourceToAddModList));
+ NR_SchedulingRequestResourceConfig_t *schedulingRequestResourceConfig = calloc(1,sizeof(*schedulingRequestResourceConfig));
+ schedulingRequestResourceConfig->schedulingRequestResourceId = 0;
+ schedulingRequestResourceConfig->schedulingRequestID = 0;
+ schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl10;  //could be changed
+ schedulingRequestResourceConfig->periodicityAndOffset->choice.sl320 = 7;
+ *schedulingRequestResourceConfig->resource = 1;
+ ASN_SEQUENCE_ADD(&pucch_Config->schedulingRequestResourceToAddModList->list,schedulingRequestResourceConfig);
+
  pucch_Config->schedulingRequestResourceToReleaseList=NULL;
-
-
-
-
-// for scheduling requestresource
-pucch_Config->schedulingRequestResourceToAddModList = calloc(1,sizeof(*pucch_Config->schedulingRequestResourceToAddModList));
-NR_SchedulingRequestResourceConfig_t *schedulingRequestResourceConfig = calloc(1,sizeof(*schedulingRequestResourceConfig));
-schedulingRequestResourceConfig->schedulingRequestResourceId = 0;
-schedulingRequestResourceConfig->schedulingRequestID = 0;
-schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl10;  //could be changed
-schedulingRequestResourceConfig->periodicityAndOffset->choice.sl320 = 7;
-*schedulingRequestResourceConfig->resource = 1;
-ASN_SEQUENCE_ADD(&pucch_Config->schedulingRequestResourceToAddModList->list,schedulingRequestResourceConfig);
-
-
-
-// for schedulingrequestconfig
-secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig = calloc(1,sizeof(*secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig)); 
-secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToAddModList = calloc(1,sizeof(*secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToAddModList)); 
-secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToReleaseList = calloc(1,sizeof(*secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToReleaseList)); 
-NR_SchedulingRequestToAddMod_t *SchedulingRequestConf = calloc(1,sizeof(*SchedulingRequestConf));
-SchedulingRequestConf->schedulingRequestId = 0;  //Could be changed
-*SchedulingRequestConf->sr_ProhibitTimer = NR_SchedulingRequestToAddMod__sr_ProhibitTimer_ms8; //could be changed
-SchedulingRequestConf->sr_TransMax = NR_SchedulingRequestToAddMod__sr_TransMax_n32; ; //could be changed
-ASN_SEQUENCE_ADD(&secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToAddModList->list,SchedulingRequestConf);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
  pucch_Config->multi_CSI_PUCCH_ResourceList=NULL;
  pucch_Config->dl_DataToUL_ACK = calloc(1,sizeof(*pucch_Config->dl_DataToUL_ACK));

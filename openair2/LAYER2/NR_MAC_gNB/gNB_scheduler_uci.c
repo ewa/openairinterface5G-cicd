@@ -585,6 +585,7 @@ uint16_t compute_pucch_prb_size(uint8_t format,
 void nr_sr_reporting (int Mod_idp, int UE_id,sub_frame_t slot, int n_slots_frame, frame_t SFN){
 
   NR_UE_info_t *UE_info = &RC.nrmac[Mod_idp]->UE_info;
+  NR_PUCCH_ResourceSet_t *pucchresset;
   NR_sched_pucch *curr_pucch;
   NR_SchedulingRequestResourceConfig_t *SchedulingRequestResourceConfig;
   NR_CellGroupConfig_t *secondaryCellGroup = UE_info->secondaryCellGroup[UE_id];
@@ -598,7 +599,7 @@ void nr_sr_reporting (int Mod_idp, int UE_id,sub_frame_t slot, int n_slots_frame
     SchedulingRequestResourceConfig = pucch_Config->schedulingRequestResourceToAddModList->list.array[SR_resource_id]; // to makesure later of the index.
     //NR_SchedulingRequestResourceId_t schedulingRequestResourceId = SchedulingRequestResourceConfig->schedulingRequestResourceId;
     //NR_SchedulingRequestId_t schedulingRequest_ID = SchedulingRequestResourceConfig->schedulingRequestID;
-    NR_PUCCH_ResourceId_t *PucchResourceId = SchedulingRequestResourceConfig->resource;
+    
 
     /*for (int SRConfig =0; SRConfig<schedulingRequestConfig->schedulingRequestToAddModList->list.count;SRConfig++){
 
@@ -612,13 +613,26 @@ void nr_sr_reporting (int Mod_idp, int UE_id,sub_frame_t slot, int n_slots_frame
     periodicity__SRR(SchedulingRequestResourceConfig,&SR_period,&SR_offset);
     //for (int SRslot=0;SRslot<n_slots_frame;j++){
     if (((SFN*n_slots_frame)+slot-SR_offset)%SR_period ==0){
-    
+      NR_PUCCH_ResourceId_t *PucchResourceId = SchedulingRequestResourceConfig->resource;
 
       curr_pucch = &UE_info->UE_sched_ctrl[UE_id].sched_pucch[slot][0];
       curr_pucch->sr_flag=true;
       curr_pucch->frame = SFN;
       curr_pucch->ul_slot = slot;
-      curr_pucch->resource_indicator = *PucchResourceId;
+
+      
+      int found = -1;
+      pucchresset = pucch_Config->resourceSetToAddModList->list.array[0]; // set with formats 0,1
+
+
+      int n_list = pucchresset->resourceList.list.count;
+       for (int i=0; i<n_list; i++) {
+        if (*pucchresset->resourceList.list.array[i] == *PucchResourceId )
+          found = i;
+      }
+      AssertFatal(found>-1,"SR resource not found among PUCCH resources");
+
+      curr_pucch->resource_indicator = found;
 
       LOG_I(MAC,"Scheduling Request identified for frame %d slot %d with %d SR  bit\n",SFN,slot,curr_pucch->sr_flag);
     }

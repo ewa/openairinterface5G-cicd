@@ -637,8 +637,8 @@ void nr_sr_reporting (int Mod_idp, int UE_id,sub_frame_t slot, int n_slots_frame
   NR_SchedulingRequestResourceConfig_t *SchedulingRequestResourceConfig;
   NR_CellGroupConfig_t *secondaryCellGroup = UE_info->secondaryCellGroup[UE_id];
   //NR_SchedulingRequestConfig_t *schedulingRequestConfig = secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig;
-  NR_BWP_Uplink_t *uwp=secondaryCellGroup->spCellConfig->spCellConfigDedicated->uplinkConfig->uplinkBWP_ToAddModList->list.array[0];
-  NR_PUCCH_Config_t *pucch_Config = uwp->bwp_Dedicated->pucch_Config->choice.setup;
+  NR_BWP_Uplink_t *ubwp=secondaryCellGroup->spCellConfig->spCellConfigDedicated->uplinkConfig->uplinkBWP_ToAddModList->list.array[0];
+  NR_PUCCH_Config_t *pucch_Config = ubwp->bwp_Dedicated->pucch_Config->choice.setup;
 
   AssertFatal(pucch_Config->schedulingRequestResourceToAddModList->list.count>0,"NO SR configuration available");
 

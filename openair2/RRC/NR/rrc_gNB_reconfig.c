@@ -94,8 +94,9 @@ void fill_default_secondaryCellGroup(NR_ServingCellConfigCommon_t *servingcellco
   secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToAddModList = calloc(1,sizeof(*secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToAddModList));
   NR_SchedulingRequestToAddMod_t *SchedulingRequestConf = calloc(1,sizeof(*SchedulingRequestConf));
   SchedulingRequestConf->schedulingRequestId = 0;  //Could be changed
-  *SchedulingRequestConf->sr_ProhibitTimer = NR_SchedulingRequestToAddMod__sr_ProhibitTimer_ms8; //could be changed
-  SchedulingRequestConf->sr_TransMax = NR_SchedulingRequestToAddMod__sr_TransMax_n32; ; //could be changed
+  SchedulingRequestConf->sr_ProhibitTimer = calloc(1,sizeof(*SchedulingRequestConf->sr_ProhibitTimer));
+  *SchedulingRequestConf->sr_ProhibitTimer = 3; //could be changed
+  SchedulingRequestConf->sr_TransMax = 3; ; //could be changed
   ASN_SEQUENCE_ADD(&secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToAddModList->list,SchedulingRequestConf);
   secondaryCellGroup->mac_CellGroupConfig->schedulingRequestConfig->schedulingRequestToReleaseList = NULL;
 
@@ -981,8 +982,10 @@ void fill_default_secondaryCellGroup(NR_ServingCellConfigCommon_t *servingcellco
  NR_SchedulingRequestResourceConfig_t *schedulingRequestResourceConfig = calloc(1,sizeof(*schedulingRequestResourceConfig));
  schedulingRequestResourceConfig->schedulingRequestResourceId = 0;
  schedulingRequestResourceConfig->schedulingRequestID = 0;
- schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl10;  //could be changed
- schedulingRequestResourceConfig->periodicityAndOffset->choice.sl320 = 7;
+ schedulingRequestResourceConfig->periodicityAndOffset = calloc(1,sizeof(*schedulingRequestResourceConfig->periodicityAndOffset));
+ schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl10; 
+ schedulingRequestResourceConfig->periodicityAndOffset->choice.sl10 = 7;
+ schedulingRequestResourceConfig->resource = calloc(1,sizeof(*schedulingRequestResourceConfig->resource));
  *schedulingRequestResourceConfig->resource = 1;
  ASN_SEQUENCE_ADD(&pucch_Config->schedulingRequestResourceToAddModList->list,schedulingRequestResourceConfig);
 

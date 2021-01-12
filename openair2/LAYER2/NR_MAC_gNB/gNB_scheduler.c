@@ -65,7 +65,13 @@ void dump_mac_stats(gNB_MAC_INST *gNB)
   NR_UE_info_t *UE_info = &gNB->UE_info;
   int num = 1;
   for (int UE_id = UE_info->list.head; UE_id >= 0; UE_id = UE_info->list.next[UE_id]) {
-    LOG_I(MAC, "UE ID %d RNTI %04x (%d/%d)\n", UE_id, UE_info->rnti[UE_id], num++, UE_info->num_UEs);
+    LOG_I(MAC, "UE ID %d RNTI %04x (%d/%d) PH %d dB PCMAX %d dBm\n",
+          UE_id,
+          UE_info->rnti[UE_id],
+          num++,
+          UE_info->num_UEs,
+          UE_info->UE_sched_ctrl[UE_id].ph,
+          UE_info->UE_sched_ctrl[UE_id].pcmax);
     const NR_mac_stats_t *stats = &UE_info->mac_stats[UE_id];
     LOG_I(MAC, "UE %d: dlsch_rounds %d/%d/%d/%d, dlsch_errors %d\n",
           UE_id,

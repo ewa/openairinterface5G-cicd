@@ -659,7 +659,7 @@ T(T_BENETEL, T_INT(frame_rx), T_INT(slot_rx), T_BUFFER(&gNB->common_vars.rxdataF
 	  start_meas(&gNB->rx_pusch_stats);
 	  for(uint8_t symbol = symbol_start; symbol < symbol_end; symbol++) {
 	    no_sig = nr_rx_pusch(gNB, ULSCH_id, frame_rx, slot_rx, symbol, harq_pid);
-            if (no_sig) {
+            if (no_sig && (get_softmodem_params()->phy_test == 0)) {
               LOG_I(PHY, "PUSCH not detected in symbol %d\n",symbol);
               nr_fill_indication(gNB,frame_rx, slot_rx, ULSCH_id, harq_pid, 1);
               return;

@@ -354,6 +354,11 @@ typedef struct NR_sched_pdsch {
   uint8_t mcs;
   uint8_t numDmrsCdmGrpsNoData;
 
+  /// TBS-related info
+  uint16_t R;
+  uint8_t Qm;
+  uint32_t tb_size;
+
   /// DL HARQ PID to use for this UE, or -1 for "any new"
   int8_t dl_harq_pid;
 } NR_sched_pdsch_t;
@@ -365,9 +370,9 @@ typedef struct NR_UE_harq {
   uint16_t feedback_frame;
   uint16_t feedback_slot;
 
-  /* Transport block to be sent using this HARQ process */
+  /* Transport block to be sent using this HARQ process, its size is in
+   * sched_pdsch */
   uint32_t tb[16384];
-  uint32_t tb_size;
 
   /// sched_pdsch keeps information on MCS etc used for the initial transmission
   NR_sched_pdsch_t sched_pdsch;

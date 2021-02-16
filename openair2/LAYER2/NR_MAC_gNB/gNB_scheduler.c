@@ -73,15 +73,20 @@ void dump_mac_stats(gNB_MAC_INST *gNB)
           UE_info->UE_sched_ctrl[UE_id].ph,
           UE_info->UE_sched_ctrl[UE_id].pcmax);
     const NR_mac_stats_t *stats = &UE_info->mac_stats[UE_id];
+    const NR_UE_sched_ctrl_t *sched_ctrl = &UE_info->UE_sched_ctrl[UE_id];
     LOG_I(MAC, "UE %d: dlsch_rounds %d/%d/%d/%d, dlsch_errors %d\n",
           UE_id,
           stats->dlsch_rounds[0], stats->dlsch_rounds[1],
           stats->dlsch_rounds[2], stats->dlsch_rounds[3], stats->dlsch_errors);
     LOG_I(MAC, "UE %d: dlsch_total_bytes %d\n", UE_id, stats->dlsch_total_bytes);
-    LOG_I(MAC, "UE %d: ulsch_rounds %d/%d/%d/%d, ulsch_errors %d\n",
+    LOG_I(MAC, "UE %d: ulsch_rounds %d/%d/%d/%d, ulsch_errors %d, PUSCH SNR %2.1f dB, PUCCH SNR %2.1f dB, noise rssi %2.1f dB\n",
           UE_id,
           stats->ulsch_rounds[0], stats->ulsch_rounds[1],
-          stats->ulsch_rounds[2], stats->ulsch_rounds[3], stats->ulsch_errors);
+          stats->ulsch_rounds[2], stats->ulsch_rounds[3],
+          stats->ulsch_errors,
+          (float) sched_ctrl->pusch_snrx10 / 10,
+          (float) sched_ctrl->pucch_snrx10 / 10,
+          (float) (sched_ctrl->raw_rssi - 1280) / 10);
     LOG_I(MAC,
           "UE %d: ulsch_total_bytes_scheduled %d, ulsch_total_bytes_received %d\n",
           UE_id,

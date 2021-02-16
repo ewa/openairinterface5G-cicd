@@ -461,7 +461,10 @@ typedef struct {
   bool ta_apply;
   uint8_t tpc0;
   uint8_t tpc1;
-  uint16_t ul_rssi;
+  int raw_rssi;
+  int pusch_snrx10;
+  int pucch_snrx10;
+
   /// information about every HARQ process
   NR_UE_harq_t harq_processes[NR_MAX_NB_HARQ_PROCESSES];
   /// HARQ processes that are free

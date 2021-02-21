@@ -390,6 +390,13 @@ int rrc_mac_config_req_gNB(module_id_t Mod_idP,
 
     find_SSB_and_RO_available(Mod_idP);
 
+    if (get_softmodem_params()->phy_test) {
+      RC.nrmac[Mod_idP]->pre_processor_dl = nr_preprocessor_phytest;
+      RC.nrmac[Mod_idP]->pre_processor_ul = nr_ul_preprocessor_phytest;
+    } else {
+      RC.nrmac[Mod_idP]->pre_processor_dl = nr_init_fr1_dlsch_preprocessor(Mod_idP, 0);
+      RC.nrmac[Mod_idP]->pre_processor_ul = nr_init_fr1_ulsch_preprocessor(Mod_idP, 0);
+    }
   }
   
   if (secondaryCellGroup) {

@@ -382,10 +382,8 @@ void nr_preprocessor_phytest(module_id_t module_id,
     vrb_map[rb + sched_pdsch->rbStart] = 1;
 }
 
-bool nr_ul_preprocessor_phytest(module_id_t module_id,
-                                frame_t frame,
-                                sub_frame_t slot,
-                                uint64_t ulsch_in_slot_bitmap) {
+bool nr_ul_preprocessor_phytest(module_id_t module_id, frame_t frame, sub_frame_t slot)
+{
   gNB_MAC_INST *nr_mac = RC.nrmac[module_id];
   NR_COMMON_channels_t *cc = nr_mac->common_channels;
   NR_ServingCellConfigCommon_t *scc = cc->ServingCellConfigCommon;
@@ -419,7 +417,7 @@ bool nr_ul_preprocessor_phytest(module_id_t module_id,
   /* check if slot is UL, and that slot is 8 (assuming K2=6 because of UE
    * limitations).  Note that if K2 or the TDD configuration is changed, below
    * conditions might exclude each other and never be true */
-  if (!is_xlsch_in_slot(ulsch_slot_bitmap, sched_slot))
+  if (!is_xlsch_in_slot(nr_mac->ulsch_slot_bitmap[slot / 64], sched_slot) || (sched_slot != 8 && sched_slot != 18))
     return false;
 
   uint16_t rbStart = 0;

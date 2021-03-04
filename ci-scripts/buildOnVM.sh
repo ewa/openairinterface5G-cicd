@@ -208,7 +208,15 @@ function build_on_vm {
             echo "echo \"./build_oai -I $BUILD_OPTIONS \"" >> $VM_CMDS
             echo "./build_oai -I $BUILD_OPTIONS > log/install-build.txt 2>&1" >> $VM_CMDS
         else
-            echo "echo \"./build_oai -I $BUILD_OPTIONS\" > ./my-vm-build.sh" >> $VM_CMDS
+            if [[ "$VM_NAME" == *"-ue-ethernet"* ]]
+            then
+                # UGLY HACK to delay a bit the build on the last OAI VM in the pipeline
+                # This is not sustainable.
+                # No more than 3 minutes
+                echo "echo \"sleep 200 && ./build_oai -I $BUILD_OPTIONS\" > ./my-vm-build.sh" >> $VM_CMDS
+            else
+                echo "echo \"./build_oai -I $BUILD_OPTIONS\" > ./my-vm-build.sh" >> $VM_CMDS
+            fi
             echo "chmod 775 ./my-vm-build.sh " >> $VM_CMDS
             echo "echo \"sudo -E daemon --inherit --unsafe --name=build_daemon --chdir=/home/ubuntu/tmp/cmake_targets -o /home/ubuntu/tmp/cmake_targets/log/install-build.txt ./my-vm-build.sh\"" >> $VM_CMDS
             echo "sudo -E daemon --inherit --unsafe --name=build_daemon --chdir=/home/ubuntu/tmp/cmake_targets -o /home/ubuntu/tmp/cmake_targets/log/install-build.txt ./my-vm-build.sh" >> $VM_CMDS

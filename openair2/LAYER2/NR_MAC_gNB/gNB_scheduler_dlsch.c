@@ -82,40 +82,46 @@ void calculate_preferred_dl_tda(module_id_t module_id, NR_CellGroupConfig_t *sec
   // get coreset symbol "map"
   const uint16_t symb_coreset = (1 << coreset->duration) - 1;
 
-  // get largest time domain allocation (TDA) for DL slot and DL in mixed slot,
-  // taking into account coreset
-  int max_tdaDL = -1;
-  int max_tdaMi = -1;
-  int max_nrOfSymbolsDL = 0;
-  int max_nrOfSymbolsMi = 0;
+  /* check that TDA index 0 fits into DL and does not overlap CORESET */
   const struct NR_PDSCH_TimeDomainResourceAllocationList *tdaList =
       bwp->bwp_Common->pdsch_ConfigCommon->choice.setup->pdsch_TimeDomainAllocationList;
-  for (int tda = 0; tda < tdaList->list.count; ++tda) {
-    const NR_PDSCH_TimeDomainResourceAllocation_t *tdaP = tdaList->list.array[tda];
-    AssertFatal(!tdaP->k0 || *tdaP->k0 == 0,
-                "TimeDomainAllocation at index %d: non-null k0 (%ld) is not supported by the scheduler\n",
-                tda,
-                *tdaP->k0);
-    int startSymbolIndex, nrOfSymbols;
-    SLIV2SL(tdaP->startSymbolAndLength, &startSymbolIndex, &nrOfSymbols);
-    const uint16_t symb_tda = ((1 << nrOfSymbols) - 1) << startSymbolIndex;
-    // check wehether coreset and TDA overlap: then we cannot use it. Note that
-    // here we assume that the coreset is scheduled every slot (which it
-    // currently is)
-    if ((symb_coreset & symb_tda) == 0 && nrOfSymbols > max_nrOfSymbolsDL) {
-      max_tdaDL = tda;
-      max_nrOfSymbolsDL = nrOfSymbols;
-    }
+  AssertFatal(tdaList->list.count >= 1, "need to have at least one TDA for DL slots\n");
+  const NR_PDSCH_TimeDomainResourceAllocation_t *tdaP_DL = tdaList->list.array[0];
+  AssertFatal(!tdaP_DL->k0 || *tdaP_DL->k0 == 0,
+              "TimeDomainAllocation at index 1: non-null k0 (%ld) is not supported by the scheduler\n",
+              *tdaP_DL->k0);
+  int start, len;
+  SLIV2SL(tdaP_DL->startSymbolAndLength, &start, &len);
+  const uint16_t symb_tda = ((1 << len) - 1) << start;
+  // check whether coreset and TDA overlap: then we cannot use it. Note that
+  // here we assume that the coreset is scheduled every slot (which it
+  // currently is) and starting at symbol 0
+  AssertFatal((symb_coreset & symb_tda) == 0, "TDA index 0 for DL overlaps with CORESET\n");
+
+  /* check that TDA index 1 fits into DL part of mixed slot, if it exists */
+  int tdaMi = -1;
+  if (tdaList->list.count > 1) {
+    const NR_PDSCH_TimeDomainResourceAllocation_t *tdaP_Mi = tdaList->list.array[1];
+    AssertFatal(!tdaP_Mi->k0 || *tdaP_Mi->k0 == 0,
+                "TimeDomainAllocation at index 1: non-null k0 (%ld) is not supported by the scheduler\n",
+                *tdaP_Mi->k0);
+    int start, len;
+    SLIV2SL(tdaP_Mi->startSymbolAndLength, &start, &len);
+    const uint16_t symb_tda = ((1 << start) - 1) << start;
     // check whether coreset and TDA overlap: then, we cannot use it. Also,
     // check whether TDA is entirely within mixed slot DL. Note that
     // here we assume that the coreset is scheduled every slot (which it
     // currently is)
-    if ((symb_coreset & symb_tda) == 0 && (symb_dlMixed & symb_tda) == symb_tda && nrOfSymbols > max_nrOfSymbolsMi) {
-      max_tdaMi = tda;
-      max_nrOfSymbolsMi = nrOfSymbols;
+    if ((symb_coreset & symb_tda) == 0 && (symb_dlMixed & symb_tda) == symb_tda) {
+      tdaMi = 1;
+    } else {
+      LOG_E(MAC,
+            "TDA index 1 DL overlaps with CORESET or is not entirely in mixed slot (symb_coreset %x symb_dlMixed %x symb_tda %x), won't schedule DL mixed slot\n",
+            symb_coreset,
+            symb_dlMixed,
+            symb_tda);
     }
   }
-  AssertFatal(max_tdaDL >= 0, "%s(): could not find TDA that does not overlap with CORESET\n", __func__);
 
   const uint8_t slots_per_frame[5] = {10, 20, 40, 80, 160};
   const int n = slots_per_frame[*scc->ssbSubcarrierSpacing];
@@ -126,9 +132,9 @@ void calculate_preferred_dl_tda(module_id_t module_id, NR_CellGroupConfig_t *sec
   for (int i = 0; i < n; ++i) {
     nrmac->preferred_dl_tda[bwp_id][i] = -1;
     if (!tdd || i % nr_slots_period < tdd->nrofDownlinkSlots)
-      nrmac->preferred_dl_tda[bwp_id][i] = max_tdaDL;
+      nrmac->preferred_dl_tda[bwp_id][i] = 0;
     else if (tdd && nr_mix_slots && i % nr_slots_period == tdd->nrofDownlinkSlots)
-      nrmac->preferred_dl_tda[bwp_id][i] = max_tdaMi;
+      nrmac->preferred_dl_tda[bwp_id][i] = tdaMi;
     LOG_I(MAC, "slot %d preferred_dl_tda %d\n", i, nrmac->preferred_dl_tda[bwp_id][i]);
   }
 }

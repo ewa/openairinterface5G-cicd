@@ -33,7 +33,7 @@
 // def doFlexranCtrlTest = false
 
 // // Location of the executor node
-def nodeExecutor = params.nodeExecutor
+//def nodeExecutor = params.nodeExecutor
 
 // // VM Lockable resources
 // def vmResource = params.vmLockableResource
@@ -44,7 +44,7 @@ def doFullTestsuite = false
 
 pipeline {
     agent {
-       label nodeExecutor
+       label 'nodeExecutor'
     }
     options {
         disableConcurrentBuilds()
@@ -57,7 +57,7 @@ pipeline {
             steps {
                 script {
                     //checkout([$class: 'GitSCM', branches: [[name: "${params.Branch}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://gitlab.eurecom.fr/oai/openairinterface5g.git']]])
-                    sh "cd /root/colosseum-cm/ansible"
+                    //sh "cd /root/colosseum-cm/ansible"
                     sh "./test.sh"
                     //sh "git log -n1"
                 }

@@ -51,7 +51,7 @@ pipeline {
         disableConcurrentBuilds()
         timestamps()
         gitLabConnection('OAI GitLab Fork')
-        ansiColor('xterm')
+        //ansiColor('xterm')
     }
 
     stages {
@@ -377,7 +377,7 @@ pipeline {
 //             }
 //         }
 
-        stage ("Variant Tests") {
+//         stage ("Variant Tests") {
 //             parallel {
 //                 stage ("VM-based tests") {
 //                     stages {
@@ -805,7 +805,7 @@ pipeline {
 //                     }
 //                 }
 //             }
-        }
+//         }
 //     }
 //     post {
 //         always {

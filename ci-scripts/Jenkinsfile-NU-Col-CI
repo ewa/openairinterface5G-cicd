@@ -57,7 +57,7 @@ pipeline {
             steps {
                 script {
                     //checkout([$class: 'GitSCM', branches: [[name: "${params.Branch}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://gitlab.eurecom.fr/oai/openairinterface5g.git']]])
-                    //sh "cd /root/colosseum-cm/ansible"
+                    sh "cd /root/colosseum-cm/ansible"
                     sh "./test.sh"
                     //sh "git log -n1"
                 }

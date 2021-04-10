@@ -53,16 +53,16 @@ pipeline {
         //ansiColor('xterm')
     }
     stages {
-        stage ('Run test script') {
-            steps {
-                script {
-                    //checkout([$class: 'GitSCM', branches: [[name: "${params.Branch}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://gitlab.eurecom.fr/oai/openairinterface5g.git']]])
-                    sh "/root/colosseum-cm/ansible/test.sh"
-                    //sh "./test.sh"
-                    //sh "git log -n1"
-                }
-            }
-        }
+        // stage ('Run test script') {
+        //     steps {
+        //         script {
+        //             //checkout([$class: 'GitSCM', branches: [[name: "${params.Branch}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://gitlab.eurecom.fr/oai/openairinterface5g.git']]])
+        //             sh "/root/colosseum-cm/ansible/test.sh"
+        //             //sh "./test.sh"
+        //             //sh "git log -n1"
+        //         }
+        //     }
+        // }
         stage ("print latest commit info") {
             steps {
         	    script {
@@ -73,8 +73,6 @@ pipeline {
         	    }
             }
         }
-    //}
-    //stages {
         stage ('Clone Ansible toolchain') {
             steps {
                 script {

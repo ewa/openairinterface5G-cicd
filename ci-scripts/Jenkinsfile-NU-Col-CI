@@ -73,8 +73,8 @@ pipeline {
         	    }
             }
         }
-    }
-    stages {
+    //}
+    //stages {
         stage ('Clone Ansible toolchain') {
             steps {
                 script {

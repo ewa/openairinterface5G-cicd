@@ -50,7 +50,6 @@ pipeline {
         disableConcurrentBuilds()
         timestamps()
         gitLabConnection('OAI GitLab Fork')
-        //ansiColor('xterm')
     }
     stages {
         stage ("print latest commit info") {

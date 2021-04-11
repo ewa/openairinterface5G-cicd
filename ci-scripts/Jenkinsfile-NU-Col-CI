@@ -39,8 +39,8 @@
 // def vmResource = params.vmLockableResource
 
 // // Tags to shorten pipeline duration
-def doMandatoryTests = false
-def doFullTestsuite = false
+//def doMandatoryTests = false
+//def doFullTestsuite = false
 
 pipeline {
     agent {

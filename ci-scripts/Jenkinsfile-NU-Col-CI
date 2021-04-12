@@ -62,23 +62,23 @@ pipeline {
         	    }
             }
         }
-        stage ('Clone Ansible toolchain') {
-            steps {
-                script {
-                    sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
-                }
-            }
-        }
-        stage ('Set up Ansible toolchain') {
-            steps {
-                script {
-                    dir ('colosseum-cm') {
-                        sh "git checkout oai-ci"
-                        sh "./bootstrap.sh ${GIT_URL} ${GIT_BRANCH} ${GIT_COMMIT}"
-                    }
-                }
-            }
-        }
+        // stage ('Clone Ansible toolchain') {
+        //     steps {
+        //         script {
+        //             sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+        //         }
+        //     }
+        // }
+        // stage ('Set up Ansible toolchain') {
+        //     steps {
+        //         script {
+        //             dir ('colosseum-cm') {
+        //                 sh "git checkout oai-ci"
+        //                 sh "./bootstrap.sh ${GIT_URL} ${GIT_BRANCH} ${GIT_COMMIT}"
+        //             }
+        //         }
+        //     }
+        // }
         stage ('Run Ansible toolchain') {
             steps {
                 script {

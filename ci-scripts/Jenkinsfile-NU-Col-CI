@@ -58,6 +58,7 @@ pipeline {
         	        echo "Building on: "
         	        echo "  Repository -- ${GIT_URL}"
         	        echo "  Branch -- ${GIT_BRANCH}"
+                    echo "  Params branch -- ${params.Branch}"
         	        echo "  Commit -- ${GIT_COMMIT}"
         	    }
             }

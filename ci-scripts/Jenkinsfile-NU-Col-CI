@@ -62,6 +62,7 @@ pipeline {
         	    }
             }
         }
+        // Temporary
         // stage ('Clone Ansible toolchain') {
         //     steps {
         //         script {

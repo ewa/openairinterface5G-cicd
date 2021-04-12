@@ -88,6 +88,15 @@ pipeline {
                 }
             }
         }
+        stage ('Fetch logs') {
+            steps {
+                script {
+                    dir ('colosseum-cm/ansible') {
+                        echo "TODO: Fetch logs..."
+                    }
+                }
+            }
+        }
     }
 }
 

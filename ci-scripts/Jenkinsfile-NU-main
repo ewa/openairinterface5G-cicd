@@ -526,6 +526,7 @@ pipeline {
                         //             //finalizeSlaveJob('Col-CI')
                         //             sh "rm -rf colosseum-cm@tmp"
                         //             sh "rm -rf colosseum-cm"
+                        //             finalizeSlaveJob('Col-CI')
                         //         }
                         //     }
                         //     failure {

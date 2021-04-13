@@ -1,5 +1,5 @@
 # OpenAirInterface License #
-*** Changes for CI ***
+
 OpenAirInterface is under OpenAirInterface Software Alliance license.
 
  *  [OAI License Model](http://www.openairinterface.org/?page_id=101)

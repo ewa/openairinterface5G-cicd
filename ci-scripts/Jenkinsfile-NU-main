@@ -520,18 +520,20 @@ pipeline {
                                 triggerSlaveJob ('Col-CI', 'Test-gNB-nrUE-Band78')
                             }
                         }
-                        post {
-                            always {
-                                script {
-                                    finalizeSlaveJob('Col-CI')
-                                }
-                            }
-                            failure {
-                                script {
-                                    currentBuild.result = 'FAILURE'
-                                }
-                            }
-                        }
+                        // post {
+                        //     always {
+                        //         script {
+                        //             //finalizeSlaveJob('Col-CI')
+                        //             sh "rm -rf colosseum-cm@tmp"
+                        //             sh "rm -rf colosseum-cm"
+                        //         }
+                        //     }
+                        //     failure {
+                        //         script {
+                        //             currentBuild.result = 'FAILURE'
+                        //         }
+                        //     }
+                        // }
                     }
 //                 stage ("Test MONOLITHIC - FDD - Band 7 - B210") {
 //                     when {

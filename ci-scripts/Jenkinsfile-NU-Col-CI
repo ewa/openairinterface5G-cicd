@@ -58,9 +58,8 @@ pipeline {
         	        echo "Building on: "
         	        echo "  Repository -- ${GIT_URL}"
         	        echo "  Branch -- ${GIT_BRANCH}"
-                    echo "  Params branch -- ${params.Branch}"
-        	        echo "  Commit -- ${GIT_COMMIT}"
-                    sh 'printenv'
+                    echo "  Commit -- ${GIT_COMMIT}"
+                    //sh 'printenv'
         	    }
             }
         }
@@ -98,6 +97,20 @@ pipeline {
                         echo "TODO: Fetch logs..."
                     }
                 }
+            }
+        }
+    }
+    post {
+        always {
+            script {
+                //finalizeSlaveJob('Col-CI')
+                sh "rm -rf colosseum-cm@tmp"
+                sh "rm -rf colosseum-cm"
+            }
+        }
+        failure {
+            script {
+                currentBuild.result = 'FAILURE'
             }
         }
     }

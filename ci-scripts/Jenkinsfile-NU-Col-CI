@@ -60,6 +60,7 @@ pipeline {
         	        echo "  Branch -- ${GIT_BRANCH}"
                     echo "  Params branch -- ${params.Branch}"
         	        echo "  Commit -- ${GIT_COMMIT}"
+                    sh 'printenv'
         	    }
             }
         }

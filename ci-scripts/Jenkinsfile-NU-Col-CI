@@ -59,7 +59,7 @@ pipeline {
         	        echo "  Repository -- ${GIT_URL}"
         	        echo "  Branch -- ${GIT_BRANCH}"
                     echo "  Commit -- ${GIT_COMMIT}"
-                    //sh 'printenv'
+                    sh 'printenv'
         	    }
             }
         }

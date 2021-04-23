@@ -59,10 +59,10 @@ pipeline {
                     echo "  Repository -- ${GIT_URL}"
                     echo "  Branch -- ${GIT_BRANCH}"
                     echo "  Commit -- ${GIT_COMMIT}"
-                    echo "ENV eNB_mergeRequest: ${eNB_mergeRequest}"
-                    echo "ENV eNB_Repository: ${eNB_Repository}"
-                    echo "ENV source branch: ${eNB_Branch}"
-                    echo "ENV target branch: ${eNB_TargetBranch}"
+                    echo "ENV eNB_mergeRequest: ${params.eNB_mergeRequest}"
+                    echo "ENV eNB_Repository: ${params.eNB_Repository}"
+                    echo "ENV source branch: ${params.eNB_Branch}"
+                    echo "ENV target branch: ${params.eNB_TargetBranch}"
                 }
             }
         }

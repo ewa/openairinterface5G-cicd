@@ -79,7 +79,7 @@ pipeline {
                 script {
                     dir ('colosseum-cm') {
                         sh "git checkout oai-ci"
-                        sh "./bootstrap.sh ${GIT_URL} ${GIT_BRANCH} ${GIT_COMMIT}"
+                        sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
                     }
                 }
             }

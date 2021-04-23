@@ -60,11 +60,11 @@ pipeline {
         	        echo "  Branch -- ${GIT_BRANCH}"
                     echo "  Commit -- ${GIT_COMMIT}"
                     //sh 'printenv'
-                    echo "ENV request type: ${env.gitlabMergeRequestIid}"
-                    echo "ENV action type: ${env.gitlabActionType}"
-                    echo "ENV branch: ${env.gitlabBranch}"
-                    echo "ENV source branch: ${env.gitlabSourceBranch}"
-                    echo "ENV target branch: ${env.gitlabTargetBranch}"
+                    //echo "ENV request type: ${env.gitlabMergeRequestIid}"
+                    echo "ENV eNB_mergeRequest: ${eNB_mergeRequest}"
+                    echo "ENV eNB_Repository: ${eNB_Repository}"
+                    echo "ENV source branch: ${eNB_Branch}"
+                    echo "ENV target branch: ${eNB_TargetBranch}"
         	    }
             }
         }

@@ -54,18 +54,16 @@ pipeline {
     stages {
         stage ("print latest commit info") {
             steps {
-        	    script {
-        	        echo "Building on: "
-        	        echo "  Repository -- ${GIT_URL}"
-        	        echo "  Branch -- ${GIT_BRANCH}"
+                script {
+                    echo "Building on: "
+                    echo "  Repository -- ${GIT_URL}"
+                    echo "  Branch -- ${GIT_BRANCH}"
                     echo "  Commit -- ${GIT_COMMIT}"
-                    //sh 'printenv'
-                    //echo "ENV request type: ${env.gitlabMergeRequestIid}"
                     echo "ENV eNB_mergeRequest: ${eNB_mergeRequest}"
                     echo "ENV eNB_Repository: ${eNB_Repository}"
                     echo "ENV source branch: ${eNB_Branch}"
                     echo "ENV target branch: ${eNB_TargetBranch}"
-        	    }
+                }
             }
         }
         

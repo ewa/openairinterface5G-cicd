@@ -55,14 +55,16 @@ pipeline {
         stage ("print latest commit info") {
             steps {
                 script {
-                    echo "Building on: "
-                    echo "  Repository -- ${GIT_URL}"
-                    echo "  Branch -- ${GIT_BRANCH}"
-                    echo "  Commit -- ${GIT_COMMIT}"
-                    echo "ENV eNB_mergeRequest: ${params.eNB_mergeRequest}"
-                    echo "ENV eNB_Repository: ${params.eNB_Repository}"
-                    echo "ENV source branch: ${params.eNB_Branch}"
-                    echo "ENV target branch: ${params.eNB_TargetBranch}"
+                    gitlabCommitStatus(name: "Print latest commit info") {
+                        echo "Building on: "
+                        echo "  Repository -- ${GIT_URL}"
+                        echo "  Branch -- ${GIT_BRANCH}"
+                        echo "  Commit -- ${GIT_COMMIT}"
+                        echo "ENV eNB_mergeRequest: ${params.eNB_mergeRequest}"
+                        echo "ENV eNB_Repository: ${params.eNB_Repository}"
+                        echo "ENV source branch: ${params.eNB_Branch}"
+                        echo "ENV target branch: ${params.eNB_TargetBranch}"
+                    }
                 }
             }
         }
@@ -70,16 +72,20 @@ pipeline {
         stage ('Clone Ansible toolchain') {
             steps {
                 script {
-                    sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+                    gitlabCommitStatus(name: "Clone Ansible scripts") {
+                        sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+                    }
                 }
             }
         }
-        stage ('Set up Ansible toolchain') {
+        stage ('Configure Ansible toolchain') {
             steps {
                 script {
-                    dir ('colosseum-cm') {
-                        sh "git checkout oai-ci"
-                        sh "./bootstrap.sh ${GIT_URL} ${GIT_BRANCH} ${GIT_COMMIT}"
+                    gitlabCommitStatus(name: "Configure Ansible toolchain") {
+                        dir ('colosseum-cm') {
+                            sh "git checkout oai-ci"
+                            sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
+                        }
                     }
                 }
             }
@@ -87,8 +93,10 @@ pipeline {
         stage ('Run Ansible toolchain') {
             steps {
                 script {
-                    dir ('colosseum-cm/ansible') {
-                        sh "ansible-playbook oai.yml"
+                    gitlabCommitStatus(name: "Run Ansible toolchain") {
+                        dir ('colosseum-cm/ansible') {
+                            sh "ansible-playbook oai.yml"
+                        }
                     }
                 }
             }

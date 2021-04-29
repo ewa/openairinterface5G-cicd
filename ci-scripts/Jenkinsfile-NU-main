@@ -52,7 +52,17 @@ pipeline {
         timestamps()
         gitLabConnection('OAI GitLab Fork')
         //ansiColor('xterm')
+        gitlabBuilds(builds: [
+            "print latest commit info"
+            //"Build RHEL8 AMF Image",
+            //"Static Code Analysis",
+            //"Code Formatting Checker",
+            //"Test with DsTester"
+            ])
+
     }
+
+    //properties([[$class: 'GitLabConnectionProperty', gitLabConnection: 'OAI GitLab Fork']])
 
     stages {
         stage ("print latest commit info") {
@@ -63,12 +73,12 @@ pipeline {
                         echo "  Repository -- ${GIT_URL}"
                         echo "  Branch -- ${GIT_BRANCH}"
                         echo "  Commit -- ${GIT_COMMIT}"
-                        //sh 'printenv'
                         echo "ENV request type: ${env.gitlabMergeRequestIid}"
                         echo "ENV action type: ${env.gitlabActionType}"
                         echo "ENV branch: ${env.gitlabBranch}"
                         echo "ENV source branch: ${env.gitlabSourceBranch}"
                         echo "ENV target branch: ${env.gitlabTargetBranch}"
+                        //sh 'printenv'
                     }
                 }
             }

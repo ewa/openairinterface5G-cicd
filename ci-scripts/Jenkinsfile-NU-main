@@ -59,7 +59,6 @@ pipeline {
             //"Code Formatting Checker",
             //"Test with DsTester"
             ])
-
     }
 
     //properties([[$class: 'GitLabConnectionProperty', gitLabConnection: 'OAI GitLab Fork']])

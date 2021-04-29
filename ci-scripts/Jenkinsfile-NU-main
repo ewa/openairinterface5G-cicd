@@ -52,7 +52,17 @@ pipeline {
         timestamps()
         gitLabConnection('OAI GitLab Fork')
         //ansiColor('xterm')
+        gitlabBuilds(builds: [
+            "print latest commit info"
+            //"Build RHEL8 AMF Image",
+            //"Static Code Analysis",
+            //"Code Formatting Checker",
+            //"Test with DsTester"
+            ])
+
     }
+
+    //properties([[$class: 'GitLabConnectionProperty', gitLabConnection: 'OAI GitLab Fork']])
 
     stages {
         stage ("print latest commit info") {

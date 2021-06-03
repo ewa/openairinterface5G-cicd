@@ -50,7 +50,7 @@ pipeline {
     options {
         disableConcurrentBuilds()
         timestamps()
-        gitLabConnection('OAI GitLab fork')
+        gitLabConnection('OAI Gitlab fork')
         //ansiColor('xterm')
         gitlabBuilds(builds: [
             "print latest commit info"

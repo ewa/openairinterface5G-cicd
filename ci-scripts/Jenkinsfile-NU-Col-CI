@@ -101,11 +101,11 @@ pipeline {
                 }
             }
         }
-        // stage ('Fetch logs') {
+        // stage ('Parse logs') {
         //     steps {
         //         script {
         //             dir ('colosseum-cm/ansible') {
-        //                 echo "TODO: Fetch logs..."
+        //                 echo "TODO: Parse logs..."
         //             }
         //         }
         //     }

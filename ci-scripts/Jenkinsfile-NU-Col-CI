@@ -49,7 +49,7 @@ pipeline {
     options {
         disableConcurrentBuilds()
         timestamps()
-        gitLabConnection('OAI GitLab Fork')
+        gitLabConnection('OAI Gitlab fork')
     }
     stages {
         stage ("print latest commit info") {

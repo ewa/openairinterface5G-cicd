@@ -3019,8 +3019,8 @@ class OaiCiTest():
 				ueAction = 'Connection'
 			if (logStatus < 0):
 				logging.info('\u001B[1m' + ueAction + ' Failed \u001B[0m')
-				//HTML.htmlUEFailureMsg='<b>' + ueAction + ' Failed</b>\n' + HTML.htmlUEFailureMsg
-				//HTML.CreateHtmlTestRow('N/A', 'KO', logStatus, 'UE')
+				#HTML.htmlUEFailureMsg='<b>' + ueAction + ' Failed</b>\n' + HTML.htmlUEFailureMsg
+				#HTML.CreateHtmlTestRow('N/A', 'KO', logStatus, 'UE')
 				if self.air_interface == 'lte-uesoftmodem':
 					# In case of sniffing on commercial eNBs we have random results
 					# Not an error then
@@ -3033,12 +3033,12 @@ class OaiCiTest():
 						self.AutoTerminateUEandeNB(HTML,RAN,COTS_UE,EPC)
 			else:
 				logging.info('\u001B[1m' + ueAction + ' Completed \u001B[0m')
-//				HTML.htmlUEFailureMsg='<b>' + ueAction + ' Completed</b>\n' + HTML.htmlUEFailureMsg
-//				HTML.CreateHtmlTestRow('N/A', 'OK', CONST.ALL_PROCESSES_OK)
+				#HTML.htmlUEFailureMsg='<b>' + ueAction + ' Completed</b>\n' + HTML.htmlUEFailureMsg
+				#HTML.CreateHtmlTestRow('N/A', 'OK', CONST.ALL_PROCESSES_OK)
 			self.UELogFile = ''
-//		else:
+		else:
 			logging.info('\u001B[1m' + UELogFile + ' Not found \u001B[0m')
-//			HTML.CreateHtmlTestRow('N/A', 'OK', CONST.ALL_PROCESSES_OK)
+			#HTML.CreateHtmlTestRow('N/A', 'OK', CONST.ALL_PROCESSES_OK)
 
 	def AutoTerminateUEandeNB(self,HTML,RAN,COTS_UE,EPC):
 		if (self.ADBIPAddress != 'none'):

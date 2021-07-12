@@ -638,17 +638,17 @@ class RANManagement():
 	def AnalyzeeNB(self, HTML, EPC):
 		fileToAnalyze="logfiles/openairxlabs-oai-lop--ci-srn8-RES119797/gnb.log"
 		if path.exists(fileToAnalyze):
-            logging.info('\u001B[1m Analyzing ' + 'NB logfile \u001B[0m ' + fileToAnalyze)
-            logStatus = self.AnalyzeLogFile_eNB(fileToAnalyze, HTML)
-            if (logStatus < 0):
-                logging.info('\u001B[1m' + ' NB Failed \u001B[0m')
-                #HTML.CreateHtmlTestRow('N/A', 'KO', logStatus)
-                self.preamtureExit = True
-                self.eNBmbmsEnables[int(self.eNB_instance)] = False
-                return
-            else:
-                logging.info('\u001B[1m' + ' NB Completed \u001B[0m')
-                #HTML.CreateHtmlTestRow(self.runtime_stats, 'OK', CONST.ALL_PROCESSES_OK)
+			logging.info('\u001B[1m Analyzing ' + 'NB logfile \u001B[0m ' + fileToAnalyze)
+			logStatus = self.AnalyzeLogFile_eNB(fileToAnalyze, HTML)
+			if (logStatus < 0):
+				logging.info('\u001B[1m' + ' NB Failed \u001B[0m')
+				#HTML.CreateHtmlTestRow('N/A', 'KO', logStatus)
+				self.preamtureExit = True
+				self.eNBmbmsEnables[int(self.eNB_instance)] = False
+				return
+			else:
+				logging.info('\u001B[1m' + ' NB Completed \u001B[0m')
+				#HTML.CreateHtmlTestRow(self.runtime_stats, 'OK', CONST.ALL_PROCESSES_OK)
 		self.eNBmbmsEnables[int(self.eNB_instance)] = False
 		self.eNBstatuses[int(self.eNB_instance)] = -1
         

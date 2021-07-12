@@ -46,7 +46,7 @@ import cls_containerize     #class Containerize for all container-based operatio
 
 import sshconnection 
 import epc
-import ran
+import NU_ran
 import html
 
 
@@ -375,7 +375,7 @@ CiTestObj = NU_cls_oaicitest.OaiCiTest()
  
 SSH = sshconnection.SSHConnection()
 EPC = epc.EPCManagement()
-RAN = ran.RANManagement()
+RAN = NU_ran.RANManagement()
 HTML = html.HTMLManagement()
 CONTAINERS = cls_containerize.Containerize()
 
@@ -421,6 +421,11 @@ if re.match('^TerminateeNB$', mode, re.IGNORECASE):
 	RAN.eNB_serverId[0]='0'
 	RAN.eNBSourceCodePath='/tmp/'
 	RAN.TerminateeNB(HTML, EPC)
+elif re.match('^AnalyzeeNB$', mode, re.IGNORECASE):
+	if RAN.eNBIPAddress == '' or RAN.eNBUserName == '' or RAN.eNBPassword == '':
+		HELP.GenericHelp(CONST.Version)
+		sys.exit('Insufficient Parameter')
+	RAN.AnalyzeeNB(HTML, EPC)
 elif re.match('^TerminateUE$', mode, re.IGNORECASE):
 	if (CiTestObj.ADBIPAddress == '' or CiTestObj.ADBUserName == '' or CiTestObj.ADBPassword == ''):
 		HELP.GenericHelp(CONST.Version)

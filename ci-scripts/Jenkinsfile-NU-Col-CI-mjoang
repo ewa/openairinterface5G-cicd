@@ -106,8 +106,8 @@ pipeline {
             }
         }
 */
-        stage ("Terminate") {
-            parallel {
+//        stage ("Terminate") {
+//            parallel {
 				stage('Terminate NR UE') {
 					script {
 						gitlabCommitStatus(name: "Terminate NR UE") {
@@ -142,8 +142,8 @@ pipeline {
 					}
 					*/
 				}
-            }
-        }        
+//            }
+//        }        
     }
     // post {
     //     always {

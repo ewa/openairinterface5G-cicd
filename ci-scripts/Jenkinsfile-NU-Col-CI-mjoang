@@ -106,44 +106,48 @@ pipeline {
             }
         }
 */
-//        stage ("Terminate") {
-//            parallel {
+        stage ("Terminate") {
+            parallel {
 				stage('Terminate NR UE') {
-					script {
-						gitlabCommitStatus(name: "Terminate NR UE") {
-								echo '\u2705 \u001B[32mTerminate NR UE\u001B[0m'
-								//sh "python3 ci-scripts/main.py --mode=TerminateOAIUE --UEIPAddress=${params.eNB_IPAddress} --UEUserName=${UE_Username} --UEPassword=${UE_Password}"
-						}
-					}
-					/*
-					post {
-						success {
-							script {
-							termStatusArray[termUE] = true
+					steps {
+						script {
+							gitlabCommitStatus(name: "Terminate NR UE") {
+									echo '\u2705 \u001B[32mTerminate NR UE\u001B[0m'
+									//sh "python3 ci-scripts/main.py --mode=TerminateOAIUE --UEIPAddress=${params.eNB_IPAddress} --UEUserName=${UE_Username} --UEPassword=${UE_Password}"
 							}
 						}
+						/*
+						post {
+							success {
+								script {
+								termStatusArray[termUE] = true
+								}
+							}
+						}
+						*/
 					}
-					*/
 				}
 				stage('Terminate NR eNB') {
-					script {
-						gitlabCommitStatus(name: "Terminate NR eNB") {
-								echo '\u2705 \u001B[32mTerminate NR eNB\u001B[0m'
-								//sh "python3 ci-scripts/main.py --mode=TerminateeNB --eNBIPAddress=${params.eNB_IPAddress} --eNBUserName=${eNB_Username} --eNBPassword=${eNB_Password}"
-						}
-					}
-					/*
-					post {
-						success {
-							script {
-							termStatusArray[termENB] = true
+					steps {
+						script {
+							gitlabCommitStatus(name: "Terminate NR eNB") {
+									echo '\u2705 \u001B[32mTerminate NR eNB\u001B[0m'
+									//sh "python3 ci-scripts/main.py --mode=TerminateeNB --eNBIPAddress=${params.eNB_IPAddress} --eNBUserName=${eNB_Username} --eNBPassword=${eNB_Password}"
 							}
 						}
+						/*
+						post {
+							success {
+								script {
+								termStatusArray[termENB] = true
+								}
+							}
+						}
+						*/
 					}
-					*/
 				}
-//            }
-//        }        
+            }
+        }        
     }
     // post {
     //     always {

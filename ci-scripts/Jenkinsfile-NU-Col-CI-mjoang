@@ -41,6 +41,7 @@
 // // Tags to shorten pipeline duration
 //def doMandatoryTests = false
 //def doFullTestsuite = false
+def termStatusArray = new Boolean[2]
 
 pipeline {
     agent {
@@ -49,7 +50,7 @@ pipeline {
     options {
         disableConcurrentBuilds()
         timestamps()
-        gitLabConnection('OAI GitLab Fork')
+        gitLabConnection('OAI Gitlab fork')
     }
     stages {
         stage ("print latest commit info") {
@@ -102,6 +103,44 @@ pipeline {
             }
         }
 */
+        stage ("Terminate") {
+            parallel {
+        	stage('Terminate NR UE') {
+        	    steps {
+        		echo '\u2705 \u001B[32mTerminate NR UE\u001B[0m'
+                        withCredentials([
+                            [$class: 'UsernamePasswordMultiBinding', credentialsId: "${params.eNB_Credentials}", usernameVariable: 'UE_Username', passwordVariable: 'UE_Password']
+                        ]) {
+                            sh "python3 ci-scripts/main.py --mode=TerminateOAIUE --UEIPAddress=${params.eNB_IPAddress} --UEUserName=${UE_Username} --UEPassword=${UE_Password}"
+                        }
+        	    }
+        	    post {
+        		success {
+        		    script {
+        			termStatusArray[termUE] = true
+        		    }
+        		}
+        	    }
+        	}
+       	    stage('Terminate NR eNB') {
+       	        steps {
+		    echo '\u2705 \u001B[32mTerminate NR eNB\u001B[0m'
+                        withCredentials([
+                            [$class: 'UsernamePasswordMultiBinding', credentialsId: "${params.eNB_Credentials}", usernameVariable: 'eNB_Username', passwordVariable: 'eNB_Password']
+                        ]) {
+                            sh "python3 ci-scripts/main.py --mode=TerminateeNB --eNBIPAddress=${params.eNB_IPAddress} --eNBUserName=${eNB_Username} --eNBPassword=${eNB_Password}"
+                        }
+        	      }
+                    post {
+        	        success {
+                            script {
+        		        termStatusArray[termENB] = true
+        		    }
+                        }
+        	    }
+                }
+            }
+        }        
     }
     // post {
     //     always {

@@ -1,0 +1,121 @@
+#!/bin/groovy
+/*
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
+
+// Abstraction function to send social media messages:
+// like on Slack or Mattermost
+// def sendSocialMediaMessage(pipeChannel, pipeColor, pipeMessage) {
+//     if (params.pipelineUsesSlack != null) {
+//         if (params.pipelineUsesSlack) {
+//             slackSend channel: pipeChannel, color: pipeColor, message: pipeMessage
+//         }
+//     }
+// }
+
+// def doFlexranCtrlTest = false
+
+// // Location of the executor node
+//def nodeExecutor = params.nodeExecutor
+
+// // VM Lockable resources
+// def vmResource = params.vmLockableResource
+
+// // Tags to shorten pipeline duration
+//def doMandatoryTests = false
+//def doFullTestsuite = false
+
+pipeline {
+    agent {
+       label 'nodeExecutor'
+    }
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+        gitLabConnection('OAI GitLab Fork')
+    }
+    stages {
+        stage ("print latest commit info") {
+            steps {
+                script {
+                    gitlabCommitStatus(name: "Print latest commit info") {
+                        echo "Building on: "
+                        echo "  Repository -- ${GIT_URL}"
+                        echo "  Branch -- ${GIT_BRANCH}"
+                        echo "  Commit -- ${GIT_COMMIT}"
+                        echo "ENV eNB_mergeRequest: ${params.eNB_mergeRequest}"
+                        echo "ENV eNB_Repository: ${params.eNB_Repository}"
+                        echo "ENV source branch: ${params.eNB_Branch}"
+                        echo "ENV target branch: ${params.eNB_TargetBranch}"
+                    }
+                }
+            }
+        }
+/*        
+        stage ('Clone Ansible toolchain') {
+            steps {
+                script {
+                    gitlabCommitStatus(name: "Clone Ansible scripts") {
+                        sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+                    }
+                }
+            }
+        }
+        stage ('Configure Ansible toolchain') {
+            steps {
+                script {
+                    gitlabCommitStatus(name: "Configure Ansible toolchain") {
+                        dir ('colosseum-cm') {
+                            sh "git checkout oai-ci"
+                            sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
+                        }
+                    }
+                }
+            }
+        }
+        stage ('Run Ansible toolchain') {
+            steps {
+                script {
+                    gitlabCommitStatus(name: "Run Ansible toolchain") {
+                        dir ('colosseum-cm/ansible') {
+                            sh "ansible-playbook oai.yml"
+                        }
+                    }
+                }
+            }
+        }
+    }
+*/
+    // post {
+    //     always {
+    //         script {
+    //             //finalizeSlaveJob('Col-CI')
+    //             sh "rm -rf colosseum-cm@tmp"
+    //             sh "rm -rf colosseum-cm"
+    //         }
+    //     }
+    //     failure {
+    //         script {
+    //             currentBuild.result = 'FAILURE'
+    //         }
+    //     }
+    // }
+}
+

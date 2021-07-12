@@ -371,7 +371,7 @@ with open(yaml_file,'r') as f:
 
 mode = ''
 
-CiTestObj = cls_oaicitest.OaiCiTest()
+CiTestObj = NU_cls_oaicitest.OaiCiTest()
  
 SSH = sshconnection.SSHConnection()
 EPC = epc.EPCManagement()

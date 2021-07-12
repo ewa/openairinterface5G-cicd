@@ -106,15 +106,14 @@ pipeline {
             }
         }
 */
-        stage ("Terminate") {
+        stage ("Analyze") {
             parallel {
-				stage('Terminate NR UE') {
+				stage('Analyze NR UE') {
 					steps {
 						script {
-							gitlabCommitStatus(name: "Terminate NR UE") {
-									echo '\u2705 \u001B[32mTerminate NR UE\u001B[0m'
-									sh "python3 ci-scripts/main.py --mode=TerminateOAIUE --UEIPAddress=dummy --UEUserName=dummy --UEPassword=dummy"
-									//sh "python3 ci-scripts/main.py --mode=TerminateOAIUE"
+							gitlabCommitStatus(name: "Analyze NR UE") {
+									echo '\u2705 \u001B[32mAnalyze NR UE\u001B[0m'
+									sh "python3 ci-scripts/NU_main.py --mode=AnalyzeOAIUE --UEIPAddress=dummy --UEUserName=dummy --UEPassword=dummy"
 							}
 						}
 						/*
@@ -128,13 +127,12 @@ pipeline {
 						*/
 					}
 				}
-				stage('Terminate NR eNB') {
+				stage('Analyze NR eNB') {
 					steps {
 						script {
-							gitlabCommitStatus(name: "Terminate NR eNB") {
-									echo '\u2705 \u001B[32mTerminate NR eNB\u001B[0m'
-									sh "python3 ci-scripts/main.py --mode=TerminateeNB --eNBIPAddress=dummy --eNBUserName=dummy --eNBPassword=dummy"
-									//sh "python3 ci-scripts/main.py --mode=TerminateeNB"
+							gitlabCommitStatus(name: "Analyze NR eNB") {
+									echo '\u2705 \u001B[32mAnalyze NR eNB\u001B[0m'
+									//sh "python3 ci-scripts/NU_main.py --mode=AnalyzeeNB --eNBIPAddress=dummy --eNBUserName=dummy --eNBPassword=dummy"
 							}
 						}
 						/*

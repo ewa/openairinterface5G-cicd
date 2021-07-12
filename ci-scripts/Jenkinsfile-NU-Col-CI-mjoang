@@ -106,11 +106,12 @@ pipeline {
         stage ("Terminate") {
             parallel {
 				stage('Terminate NR UE') {
-					steps {
-					echo '\u2705 \u001B[32mTerminate NR UE\u001B[0m'
+					script {
+						gitlabCommitStatus(name: "Terminate NR UE") {
 							{
 								sh "python3 ci-scripts/main.py --mode=TerminateOAIUE --UEIPAddress=${params.eNB_IPAddress} --UEUserName=${UE_Username} --UEPassword=${UE_Password}"
 							}
+						}
 					}
 					post {
 						success {
@@ -121,8 +122,8 @@ pipeline {
 					}
 				}
 				stage('Terminate NR eNB') {
-					steps {
-					echo '\u2705 \u001B[32mTerminate NR eNB\u001B[0m'
+					script {
+						gitlabCommitStatus(name: "Terminate NR eNB") {
 							{
 								sh "python3 ci-scripts/main.py --mode=TerminateeNB --eNBIPAddress=${params.eNB_IPAddress} --eNBUserName=${eNB_Username} --eNBPassword=${eNB_Password}"
 							}

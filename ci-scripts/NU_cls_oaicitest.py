@@ -3022,7 +3022,7 @@ class OaiCiTest():
 				logging.info('\u001B[1m' + ueAction + ' Failed \u001B[0m')
 				#HTML.htmlUEFailureMsg='<b>' + ueAction + ' Failed</b>\n' + HTML.htmlUEFailureMsg
 				#HTML.CreateHtmlTestRow('N/A', 'KO', logStatus, 'UE')
-                sys.exit('Failed Scenario')
+				sys.exit('Failed Scenario')
 				if self.air_interface == 'lte-uesoftmodem':
 					# In case of sniffing on commercial eNBs we have random results
 					# Not an error then

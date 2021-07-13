@@ -648,7 +648,7 @@ class RANManagement():
 				#HTML.CreateHtmlTestRow('N/A', 'KO', logStatus)
 				self.preamtureExit = True
 				self.eNBmbmsEnables[int(self.eNB_instance)] = False
-                sys.exit('Failed Scenario')
+				sys.exit('Failed Scenario')
 				#return
 			else:
 				logging.info('\u001B[1m' + nodeB_prefix + 'NB Completed \u001B[0m')

@@ -3012,6 +3012,7 @@ class OaiCiTest():
 		if path.exists(self.UELogFile):
 			logging.debug('\u001B[1m Analyzing UE logfile \u001B[0m')
 			logStatus = self.AnalyzeLogFile_UE(self.UELogFile,HTML,RAN)
+			logStatus = -1
 			result = re.search('--no-L2-connect', str(self.Initialize_OAI_UE_args))
 			if result is not None:
 				ueAction = 'Sniffing'
@@ -3021,6 +3022,7 @@ class OaiCiTest():
 				logging.info('\u001B[1m' + ueAction + ' Failed \u001B[0m')
 				#HTML.htmlUEFailureMsg='<b>' + ueAction + ' Failed</b>\n' + HTML.htmlUEFailureMsg
 				#HTML.CreateHtmlTestRow('N/A', 'KO', logStatus, 'UE')
+                sys.exit('Failed Scenario')
 				if self.air_interface == 'lte-uesoftmodem':
 					# In case of sniffing on commercial eNBs we have random results
 					# Not an error then

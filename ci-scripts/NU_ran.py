@@ -638,17 +638,20 @@ class RANManagement():
 
 	def AnalyzeeNB(self, HTML, EPC):
 		fileToAnalyze="logfiles/openairxlabs-oai-lop--ci-srn8-RES119797/gnb.log"
+		nodeB_prefix = 'g'
 		if path.exists(fileToAnalyze):
-			logging.info('\u001B[1m Analyzing ' + 'NB logfile \u001B[0m ' + fileToAnalyze)
+			logging.info('\u001B[1m Analyzing ' + nodeB_prefix + 'NB logfile \u001B[0m ' + fileToAnalyze)
 			logStatus = self.AnalyzeLogFile_eNB(fileToAnalyze, HTML)
+			logStatus = -1
 			if (logStatus < 0):
-				logging.info('\u001B[1m' + ' NB Failed \u001B[0m')
+				logging.info('\u001B[1m' + nodeB_prefix + 'NB Failed \u001B[0m')
 				#HTML.CreateHtmlTestRow('N/A', 'KO', logStatus)
 				self.preamtureExit = True
 				self.eNBmbmsEnables[int(self.eNB_instance)] = False
-				return
+                sys.exit('Failed Scenario')
+				#return
 			else:
-				logging.info('\u001B[1m' + ' NB Completed \u001B[0m')
+				logging.info('\u001B[1m' + nodeB_prefix + 'NB Completed \u001B[0m')
 				#HTML.CreateHtmlTestRow(self.runtime_stats, 'OK', CONST.ALL_PROCESSES_OK)
 		self.eNBmbmsEnables[int(self.eNB_instance)] = False
 		self.eNBstatuses[int(self.eNB_instance)] = -1

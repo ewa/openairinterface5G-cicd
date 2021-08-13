@@ -637,7 +637,7 @@ class RANManagement():
 		self.eNBstatuses[int(self.eNB_instance)] = -1
 
 	def AnalyzeeNB(self, HTML, EPC):
-		fileToAnalyze="logfiles/openairxlabs-oai-lop--ci-srn8-RES119797/gnb.log"
+		fileToAnalyze="logfiles/gnb-logs/gnb.log"
 		nodeB_prefix = 'g'
 		if path.exists(fileToAnalyze):
 			logging.info('\u001B[1m Analyzing ' + nodeB_prefix + 'NB logfile \u001B[0m ' + fileToAnalyze)

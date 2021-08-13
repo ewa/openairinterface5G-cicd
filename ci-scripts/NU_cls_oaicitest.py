@@ -3008,7 +3008,7 @@ class OaiCiTest():
 			HTML.CreateHtmlTestRow('N/A', 'OK', CONST.ALL_PROCESSES_OK)
 
 	def AnalyzeOAIUE(self,HTML,RAN,COTS_UE,EPC):
-		self.UELogFile="logfiles/openairxlabs-oai-lop--ci-srn7-RES119797/ue.log"
+		self.UELogFile="logfiles/ue-logs/ue.log"
 		if path.exists(self.UELogFile):
 			logging.debug('\u001B[1m Analyzing UE logfile \u001B[0m')
 			logStatus = self.AnalyzeLogFile_UE(self.UELogFile,HTML,RAN)

@@ -73,33 +73,33 @@ pipeline {
             }
         }
         
-        stage ('Clone Ansible toolchain') {
-            steps {
-                script {
-                    gitlabCommitStatus(name: "Clone Ansible scripts") {
-                        sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
-                    }
-                }
-            }
-        }
-        stage ('Configure Ansible toolchain') {
-            steps {
-                script {
-                    gitlabCommitStatus(name: "Configure Ansible toolchain") {
-                        dir ('colosseum-cm') {
-                            sh "git checkout oai-ci"
-                            sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
-                        }
-                    }
-                }
-            }
-        }
+        // stage ('Clone Ansible toolchain') {
+        //     steps {
+        //         script {
+        //             gitlabCommitStatus(name: "Clone Ansible scripts") {
+        //                 sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+        //             }
+        //         }
+        //     }
+        // }
+        // stage ('Configure Ansible toolchain') {
+        //     steps {
+        //         script {
+        //             gitlabCommitStatus(name: "Configure Ansible toolchain") {
+        //                 dir ('colosseum-cm') {
+        //                     sh "git checkout oai-ci"
+        //                     sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
         stage ('Run Ansible toolchain') {
             steps {
                 script {
                     gitlabCommitStatus(name: "Run Ansible toolchain") {
                         dir ('colosseum-cm/ansible') {
-                            sh "ansible-playbook oai.yml"
+                            sh "ansible-playbook oai.yml -e 'ansible_python_interpreter=/usr/bin/python3'"
                         }
                     }
                 }

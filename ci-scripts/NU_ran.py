@@ -642,7 +642,7 @@ class RANManagement():
 		if path.exists(fileToAnalyze):
 			logging.info('\u001B[1m Analyzing ' + nodeB_prefix + 'NB logfile \u001B[0m ' + fileToAnalyze)
 			logStatus = self.AnalyzeLogFile_eNB(fileToAnalyze, HTML)
-			logStatus = -1
+			#logStatus = -1
 			if (logStatus < 0):
 				logging.info('\u001B[1m' + nodeB_prefix + 'NB Failed \u001B[0m')
 				#HTML.CreateHtmlTestRow('N/A', 'KO', logStatus)

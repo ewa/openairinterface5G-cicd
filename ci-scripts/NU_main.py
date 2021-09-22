@@ -607,9 +607,9 @@ elif re.match('^LogCollectOAIUE$', mode, re.IGNORECASE):
 		sys.exit('Insufficient Parameter')
 	CiTestObj.LogCollectOAIUE()
 elif re.match('^InitiateHtml$', mode, re.IGNORECASE):
-	if (CiTestObj.ADBIPAddress == '' or CiTestObj.ADBUserName == '' or CiTestObj.ADBPassword == ''):
-		HELP.GenericHelp(CONST.Version)
-		sys.exit('Insufficient Parameter')
+	# if (CiTestObj.ADBIPAddress == '' or CiTestObj.ADBUserName == '' or CiTestObj.ADBPassword == ''):
+	# 	HELP.GenericHelp(CONST.Version)
+	# 	sys.exit('Insufficient Parameter')
 	count = 0
 	foundCount = 0
 	while (count < HTML.nbTestXMLfiles):
@@ -649,24 +649,24 @@ elif re.match('^TesteNB$', mode, re.IGNORECASE) or re.match('^TestUE$', mode, re
 	logging.debug('\u001B[1m----------------------------------------\u001B[0m')
 	logging.debug('\u001B[1m  Starting Scenario: ' + CiTestObj.testXMLfiles[0] + '\u001B[0m')
 	logging.debug('\u001B[1m----------------------------------------\u001B[0m')
-	if re.match('^TesteNB$', mode, re.IGNORECASE):
-		if RAN.eNBIPAddress == '' or RAN.ranRepository == '' or RAN.ranBranch == '' or RAN.eNBUserName == '' or RAN.eNBPassword == '' or RAN.eNBSourceCodePath == '' or EPC.IPAddress == '' or EPC.UserName == '' or EPC.Password == '' or EPC.Type == '' or EPC.SourceCodePath == '' or CiTestObj.ADBIPAddress == '' or CiTestObj.ADBUserName == '' or CiTestObj.ADBPassword == '':
-			HELP.GenericHelp(CONST.Version)
-			if EPC.IPAddress == '' or EPC.UserName == '' or EPC.Password == '' or EPC.SourceCodePath == '' or EPC.Type == '':
-				HELP.EPCSrvHelp(EPC.IPAddress, EPC.UserName, EPC.Password, EPC.SourceCodePath, EPC.Type)
-			if RAN.ranRepository == '':
-				HELP.GitSrvHelp(RAN.ranRepository, RAN.ranBranch, RAN.ranCommitID, RAN.ranAllowMerge, RAN.ranTargetBranch)
-			if RAN.eNBIPAddress == ''  or RAN.eNBUserName == '' or RAN.eNBPassword == '' or RAN.eNBSourceCodePath == '':
-				HELP.eNBSrvHelp(RAN.eNBIPAddress, RAN.eNBUserName, RAN.eNBPassword, RAN.eNBSourceCodePath)
-			sys.exit('Insufficient Parameter')
+	# if re.match('^TesteNB$', mode, re.IGNORECASE):
+	# 	if RAN.eNBIPAddress == '' or RAN.ranRepository == '' or RAN.ranBranch == '' or RAN.eNBUserName == '' or RAN.eNBPassword == '' or RAN.eNBSourceCodePath == '' or EPC.IPAddress == '' or EPC.UserName == '' or EPC.Password == '' or EPC.Type == '' or EPC.SourceCodePath == '' or CiTestObj.ADBIPAddress == '' or CiTestObj.ADBUserName == '' or CiTestObj.ADBPassword == '':
+	# 		HELP.GenericHelp(CONST.Version)
+	# 		if EPC.IPAddress == '' or EPC.UserName == '' or EPC.Password == '' or EPC.SourceCodePath == '' or EPC.Type == '':
+	# 			HELP.EPCSrvHelp(EPC.IPAddress, EPC.UserName, EPC.Password, EPC.SourceCodePath, EPC.Type)
+	# 		if RAN.ranRepository == '':
+	# 			HELP.GitSrvHelp(RAN.ranRepository, RAN.ranBranch, RAN.ranCommitID, RAN.ranAllowMerge, RAN.ranTargetBranch)
+	# 		if RAN.eNBIPAddress == ''  or RAN.eNBUserName == '' or RAN.eNBPassword == '' or RAN.eNBSourceCodePath == '':
+	# 			HELP.eNBSrvHelp(RAN.eNBIPAddress, RAN.eNBUserName, RAN.eNBPassword, RAN.eNBSourceCodePath)
+	# 		sys.exit('Insufficient Parameter')
 
-		if (EPC.IPAddress!= '') and (EPC.IPAddress != 'none'):
-			SSH.copyout(EPC.IPAddress, EPC.UserName, EPC.Password, cwd + "/tcp_iperf_stats.awk", "/tmp")
-			SSH.copyout(EPC.IPAddress, EPC.UserName, EPC.Password, cwd + "/active_net_interfaces.awk", "/tmp")
-	else:
-		if CiTestObj.UEIPAddress == '' or CiTestObj.ranRepository == '' or CiTestObj.ranBranch == '' or CiTestObj.UEUserName == '' or CiTestObj.UEPassword == '' or CiTestObj.UESourceCodePath == '':
-			HELP.GenericHelp(CONST.Version)
-			sys.exit('UE: Insufficient Parameter')
+	# 	if (EPC.IPAddress!= '') and (EPC.IPAddress != 'none'):
+	# 		SSH.copyout(EPC.IPAddress, EPC.UserName, EPC.Password, cwd + "/tcp_iperf_stats.awk", "/tmp")
+	# 		SSH.copyout(EPC.IPAddress, EPC.UserName, EPC.Password, cwd + "/active_net_interfaces.awk", "/tmp")
+	# else:
+	# 	if CiTestObj.UEIPAddress == '' or CiTestObj.ranRepository == '' or CiTestObj.ranBranch == '' or CiTestObj.UEUserName == '' or CiTestObj.UEPassword == '' or CiTestObj.UESourceCodePath == '':
+	# 		HELP.GenericHelp(CONST.Version)
+	# 		sys.exit('UE: Insufficient Parameter')
 
 	#read test_case_list.xml file
 	# if no parameters for XML file, use default value
@@ -717,10 +717,10 @@ elif re.match('^TesteNB$', mode, re.IGNORECASE) or re.match('^TestUE$', mode, re
 		else:
 			logging.debug('ERROR: requested test is invalidly formatted: ' + test)
 			sys.exit(1)
-	if (EPC.IPAddress != '') and (EPC.IPAddress != 'none'):
-		CiTestObj.CheckFlexranCtrlInstallation(RAN,EPC,CONTAINERS)
-		EPC.SetMmeIPAddress()
-		EPC.SetAmfIPAddress()
+	# if (EPC.IPAddress != '') and (EPC.IPAddress != 'none'):
+	# 	CiTestObj.CheckFlexranCtrlInstallation(RAN,EPC,CONTAINERS)
+	# 	EPC.SetMmeIPAddress()
+	# 	EPC.SetAmfIPAddress()
 
 	#get the list of tests to be done
 	todo_tests=[]
@@ -733,17 +733,17 @@ elif re.match('^TesteNB$', mode, re.IGNORECASE) or re.match('^TestUE$', mode, re
 
 	signal.signal(signal.SIGUSR1, receive_signal)
 
-	if (CiTestObj.ADBIPAddress != 'none') and (CiTestObj.ADBIPAddress != 'modules'):
-		terminate_ue_flag = False
-		CiTestObj.GetAllUEDevices(terminate_ue_flag)
-		CiTestObj.GetAllCatMDevices(terminate_ue_flag)
-	elif (CiTestObj.ADBIPAddress == 'modules'):
-		CiTestObj.UEDevices.append('COTS-Module')
-	else:
-		CiTestObj.UEDevices.append('OAI-UE')
+	# if (CiTestObj.ADBIPAddress != 'none') and (CiTestObj.ADBIPAddress != 'modules'):
+	# 	terminate_ue_flag = False
+	# 	CiTestObj.GetAllUEDevices(terminate_ue_flag)
+	# 	CiTestObj.GetAllCatMDevices(terminate_ue_flag)
+	# elif (CiTestObj.ADBIPAddress == 'modules'):
+	# 	CiTestObj.UEDevices.append('COTS-Module')
+	# else:
+	CiTestObj.UEDevices.append('OAI-UE')
 	HTML.SethtmlUEConnected(len(CiTestObj.UEDevices) + len(CiTestObj.CatMDevices))
 	HTML.CreateHtmlTabHeader()
-
+	logging.debug('INFO: After adding OAI UE')
 	CiTestObj.FailReportCnt = 0
 	RAN.prematureExit=True
 	HTML.startTime=int(round(time.time() * 1000))
@@ -771,23 +771,23 @@ elif re.match('^TesteNB$', mode, re.IGNORECASE) or re.match('^TestUE$', mode, re
 					continue
 				CiTestObj.ShowTestID()
 				GetParametersFromXML(action)
-				if action == 'Initialize_UE' or action == 'Attach_UE' or action == 'Detach_UE' or action == 'Ping' or action == 'Iperf' or action == 'Reboot_UE' or action == 'DataDisable_UE' or action == 'DataEnable_UE' or action == 'CheckStatusUE':
-					if (CiTestObj.ADBIPAddress != 'none') and (CiTestObj.ADBIPAddress != 'modules'):
-						#in these cases, having no devices is critical, GetAllUEDevices function has to manage it as a critical error, reason why terminate_ue_flag is set to True
-						terminate_ue_flag = True 
-						# Now we stop properly the test-suite --> clean reporting
-						status = CiTestObj.GetAllUEDevices(terminate_ue_flag)
-						if not status:
-							RAN.prematureExit = True
-							break
+				# if action == 'Initialize_UE' or action == 'Attach_UE' or action == 'Detach_UE' or action == 'Ping' or action == 'Iperf' or action == 'Reboot_UE' or action == 'DataDisable_UE' or action == 'DataEnable_UE' or action == 'CheckStatusUE':
+				# 	if (CiTestObj.ADBIPAddress != 'none') and (CiTestObj.ADBIPAddress != 'modules'):
+				# 		#in these cases, having no devices is critical, GetAllUEDevices function has to manage it as a critical error, reason why terminate_ue_flag is set to True
+				# 		terminate_ue_flag = True 
+				# 		# Now we stop properly the test-suite --> clean reporting
+				# 		status = CiTestObj.GetAllUEDevices(terminate_ue_flag)
+				# 		if not status:
+				# 			RAN.prematureExit = True
+				# 			break
 				if action == 'Build_eNB':
 					RAN.BuildeNB(HTML)
 				elif action == 'WaitEndBuild_eNB':
 					RAN.WaitBuildeNBisFinished(HTML)
 				elif action == 'Initialize_eNB':
-					check_eNB = False
-					check_OAI_UE = False
-					RAN.pStatus=CiTestObj.CheckProcessExist(check_eNB, check_OAI_UE,RAN,EPC)
+					# check_eNB = False
+					# check_OAI_UE = False
+					# RAN.pStatus=CiTestObj.CheckProcessExist(check_eNB, check_OAI_UE,RAN,EPC)
 					RAN.InitializeeNB(HTML, EPC)
 				elif action == 'Terminate_eNB':
 					RAN.TerminateeNB(HTML, EPC)
@@ -895,6 +895,7 @@ elif re.match('^TesteNB$', mode, re.IGNORECASE) or re.match('^TestUE$', mode, re
 						CiTestObj.testStabilityPointReached = True
 						HTML.testStabilityPointReached = True
 		CiTestObj.FailReportCnt += 1
+		break
 	if CiTestObj.FailReportCnt == CiTestObj.repeatCounts[0] and RAN.prematureExit:
 		logging.debug('Scenario failed ' + str(CiTestObj.FailReportCnt) + ' time(s)')
 		HTML.CreateHtmlTabFooter(False)

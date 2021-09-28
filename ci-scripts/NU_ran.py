@@ -96,15 +96,55 @@ class RANManagement():
 		self.datalog_rt_stats={}
 		self.eNB_Trace = '' #if 'yes', Tshark will be launched at initialization
 		self.USRPIPAddress = ''
+		self.runStage = ''  # For NU CI - 'Pre' or 'Post'
 
 
 
 #-----------------------------------------------------------
 # RAN management functions
 #-----------------------------------------------------------
-
 	def BuildeNB(self, HTML):
-		if self.ranRepository == '' or self.ranBranch == '' or self.ranCommitID == '':
+		if self.ranRepository == '' or self.ranBranch == '' or self.ranCommitID == '' or self.runStage == '':
+			HELP.GenericHelp(CONST.Version)
+			sys.exit('Insufficient Parameter')
+
+		# Check if we build an 5G-NR gNB or an LTE eNB or an OCP eNB
+		result = re.search('--eNBocp', self.Build_eNB_args)
+		if result is not None:
+			self.air_interface[self.eNB_instance] = 'ocp-enb'
+		else:
+			result = re.search('--RU', self.Build_eNB_args)
+			if result is not None:
+				self.air_interface[self.eNB_instance] = 'oairu'
+			else:
+				result = re.search('--gNB', self.Build_eNB_args)
+				if result is not None:
+					self.air_interface[self.eNB_instance] = 'nr-softmodem'
+				else:
+					self.air_interface[self.eNB_instance] = 'lte-softmodem'
+
+		self.testCase_id = HTML.testCase_id
+
+		if (self.ranAllowMerge):
+			if self.ranTargetBranch == '':
+				if (self.ranBranch != 'develop') and (self.ranBranch != 'origin/develop'):
+					#sed -i '/line: \"OAI/ a \  when: \{\{ oai_version \}\} != "develop" and \{\{ oai_version \}\} != "origin\/develop"' ../colosseum-cm/ansible/build-oai.yml
+					os.system('sed -i "/line: \"OAI/ a \  when: {{ oai_version }} != \"develop\" and {{ oai_version }} != \"origin\/develop\"" ../colosseum-cm/ansible/build-oai.yml')
+					os.system('sed -i "/line: \"OAI/ a \  command: git merge --ff origin\/develop -m \"Temporary merge for CI\"" ../colosseum-cm/ansible/build-oai.yml')
+					os.system('sed -i "/line: \"OAI/ a \  delegate_to: \"{{ hostname }}\"" ../colosseum-cm/ansible/build-oai.yml')
+					os.system('sed -i "/line: \"OAI/ a \- name: Check merge with develop if MR" ../colosseum-cm/ansible/build-oai.yml')
+					os.system('sed -i "/line: \"OAI/ a  " ../colosseum-cm/ansible/build-oai.yml')
+			else:
+				logging.debug('Merging with the target branch: ' + self.ranTargetBranch)
+				merge_command = 'git merge --ff origin/' + self.ranTargetBranch + ' -m "Temporary merge for CI"'
+				os.system('sed -i "/line: \"OAI/ a \  when: {{ oai_version }} != \"develop\" and {{ oai_version }} != \"origin\/develop\"" ../colosseum-cm/ansible/build-oai.yml')
+				os.system('sed -i "/line: \"OAI/ a \ ' + merge_Command + ' " ../colosseum-cm/ansible/build-oai.yml')
+				os.system('sed -i "/line: \"OAI/ a \  delegate_to: \"{{ hostname }}\"" ../colosseum-cm/ansible/build-oai.yml')
+				os.system('sed -i "/line: \"OAI/ a \- name: Check merge with develop if MR" ../colosseum-cm/ansible/build-oai.yml')
+				os.system('sed -i "/line: \"OAI/ a  " ../colosseum-cm/ansible/build-oai.yml')
+
+	def BuildeNB_back(self, HTML):
+		if self.ranRepository == '' or self.ranBranch == '' or self.ranCommitID == '' or self.runStage == '':
 			HELP.GenericHelp(CONST.Version)
 			sys.exit('Insufficient Parameter')
 		# if self.eNB_serverId[self.eNB_instance] == '0':
@@ -129,25 +169,25 @@ class RANManagement():
 		# mySSH = SSH.SSHConnection()
 		# mySSH.open(lIpAddr, lUserName, lPassWord)
 		
-		# # Check if we build an 5G-NR gNB or an LTE eNB or an OCP eNB
-		# result = re.search('--eNBocp', self.Build_eNB_args)
-		# if result is not None:
-		# 	self.air_interface[self.eNB_instance] = 'ocp-enb'
-		# else:
-		# 	result = re.search('--RU', self.Build_eNB_args)
-		# 	if result is not None:
-		# 		self.air_interface[self.eNB_instance] = 'oairu'
-		# 	else:
-		# 		result = re.search('--gNB', self.Build_eNB_args)
-		# 		if result is not None:
-		# 			self.air_interface[self.eNB_instance] = 'nr-softmodem'
-		# 		else:
-		# 			self.air_interface[self.eNB_instance] = 'lte-softmodem'
+		# Check if we build an 5G-NR gNB or an LTE eNB or an OCP eNB
+		result = re.search('--eNBocp', self.Build_eNB_args)
+		if result is not None:
+			self.air_interface[self.eNB_instance] = 'ocp-enb'
+		else:
+			result = re.search('--RU', self.Build_eNB_args)
+			if result is not None:
+				self.air_interface[self.eNB_instance] = 'oairu'
+			else:
+				result = re.search('--gNB', self.Build_eNB_args)
+				if result is not None:
+					self.air_interface[self.eNB_instance] = 'nr-softmodem'
+				else:
+					self.air_interface[self.eNB_instance] = 'lte-softmodem'
 		
 		# # Worakround for some servers, we need to erase completely the workspace
 		# if self.Build_eNB_forced_workspace_cleanup:
 		# 	mySSH.command('echo ' + lPassWord + ' | sudo -S rm -Rf ' + lSourcePath, '\$', 15)
-		# self.testCase_id = HTML.testCase_id
+		self.testCase_id = HTML.testCase_id
 		# # on RedHat/CentOS .git extension is mandatory
 		# result = re.search('([a-zA-Z0-9\:\-\.\/])+\.git', self.ranRepository)
 		# if result is not None:
@@ -337,46 +377,48 @@ class RANManagement():
 			sys.exit(1)
 
 	def InitializeeNB(self, HTML, EPC):
-		logging.debug("InitializeeNB")
-		# if self.eNB_serverId[self.eNB_instance] == '0':
-		# 	lIpAddr = self.eNBIPAddress
-		# 	lUserName = self.eNBUserName
-		# 	lPassWord = self.eNBPassword
-		# 	lSourcePath = self.eNBSourceCodePath
-		# elif self.eNB_serverId[self.eNB_instance] == '1':
-		# 	lIpAddr = self.eNB1IPAddress
-		# 	lUserName = self.eNB1UserName
-		# 	lPassWord = self.eNB1Password
-		# 	lSourcePath = self.eNB1SourceCodePath
-		# elif self.eNB_serverId[self.eNB_instance] == '2':
-		# 	lIpAddr = self.eNB2IPAddress
-		# 	lUserName = self.eNB2UserName
-		# 	lPassWord = self.eNB2Password
-		# 	lSourcePath = self.eNB2SourceCodePath
-		# if lIpAddr == '' or lUserName == '' or lPassWord == '' or lSourcePath == '':
-		# 	HELP.GenericHelp(CONST.Version)
-		# 	sys.exit('Insufficient Parameter')
-		logging.debug('Starting eNB/gNB')
-
-		self.testCase_id = HTML.testCase_id
-		# mySSH = SSH.SSHConnection()
+		if self.runStage == '':
+			HELP.GenericHelp(CONST.Version)
+			sys.exit('Insufficient Parameter')
 		
-		# #reboot USRP if requested in xml
-		# if self.USRPIPAddress!='':
-		# 	logging.debug('USRP '+ self.USRPIPAddress +'reboot request')
-		# 	mySSH.open(lIpAddr, lUserName, lPassWord)
-		# 	cmd2usrp='ssh root@'+self.USRPIPAddress+' reboot'
-		# 	mySSH.command2(cmd2usrp,1)
-		# 	mySSH.close()
-		# 	logging.debug('Waiting for USRP to be ready')
-		# 	time.sleep(120)
+		#if self.runStage == 'Pre':
+		logging.debug("InitializeeNB")
+		self.testCase_id = HTML.testCase_id
 
+		full_config_file = self.Initialize_eNB_args.replace('-O ','')
+		logging.debug('Full config file:' + full_config_file)
+		extra_options = ''
+		extIdx = full_config_file.find('.conf')
+		if (extIdx > 0):
+			extra_options = full_config_file[extIdx + 5:]
+			logging.debug('Extra options:' + extra_options)
+			os.system('sed -i "s/<< gnb_args >>/' + extra_options + '/g" ../colosseum-cm/ansible/oai.yml')
+			full_config_file = full_config_file[:extIdx + 5]
+			config_path, config_file = os.path.split(full_config_file)
+			print("InitialzeeNB: gnb config file: " + full_config_file)
+			config_file_list = full_config_file.split('/')
+			full_config_file = '\/'.join(config_file_list)
+			os.system('sed -i "s/<< config_file >>/' + full_config_file + '/g" ../colosseum-cm/ansible/oai.yml')
+		else:
+			sys.exit('Insufficient Parameter')
 
-		# if (self.pStatus < 0):
-		# 	HTML.CreateHtmlTestRow(self.air_interface[self.eNB_instance] + ' ' + self.Initialize_eNB_args, 'KO', self.pStatus)
-		# 	HTML.CreateHtmlTabFooter(False)
-		# 	sys.exit(1)
+		result = re.search('noS1', str(self.Initialize_eNB_args))
+		eNBinNoS1 = False
+		if result is not None:
+			eNBinNoS1 = True
+			logging.debug('\u001B[1m gNB is in noS1 configuration \u001B[0m')
+			os.system('sed -i "s/<< noS1 >>/1/g" ../colosseum-cm/ansible/oai.yml')
+		else:
+			os.system('sed -i "s/<< noS1 >>/0/g" ../colosseum-cm/ansible/oai.yml')
+		#elif self.runStage == 'Post':
+			# do Post stuff
+		#else:
+		#	sys.exit('Invalid Parameter value for runStage')
 
+	def InitializeeNB_back(self, HTML, EPC):
+		logging.debug("InitializeeNB")
+		self.testCase_id = HTML.testCase_id
+		
 		# #Get pcap on enb and/or gnb if enabled in the xml 
 		# if self.eNB_Trace=='yes':
 		# 	if ((self.air_interface[self.eNB_instance] == 'lte-softmodem') or (self.air_interface[self.eNB_instance] == 'ocp-enb')):

@@ -162,14 +162,34 @@ class OaiCiTest():
 		self.expectedNbOfConnectedUEs = 0
 		self.ue_id = '' #used for module identification
 		self.ue_trace ='' #used to enable QLog trace for Module UE, passed to Module UE object at InitializeUE()
-
+		self.runStage = ''  # For NU CI - 'Pre' or 'Post'
 
 	def BuildOAIUE(self,HTML):
+		if self.runStage == '' orself.ranRepository == '' or self.ranBranch == '' or self.ranCommitID == '':
+			HELP.GenericHelp(CONST.Version)
+			sys.exit('Insufficient Parameter')
+		result = re.search('--nrUE', self.Build_OAI_UE_args)
+		if result is not None:
+			self.air_interface='nr-uesoftmodem'
+			ue_prefix = 'NR '
+		else:
+			self.air_interface='lte-uesoftmodem'
+			ue_prefix = ''
+		result = re.search('([a-zA-Z0-9\:\-\.\/])+\.git', self.ranRepository)
+		if result is not None:
+			full_ran_repo_name = self.ranRepository.replace('git/', 'git')
+		else:
+			full_ran_repo_name = self.ranRepository + '.git'
+
+	def BuildOAIUE_back(self,HTML):
 		# if self.UEIPAddress == '' or self.ranRepository == '' or self.ranBranch == '' or self.UEUserName == '' or self.UEPassword == '' or self.UESourceCodePath == '':
 		# 	HELP.GenericHelp(CONST.Version)
 		# 	sys.exit('Insufficient Parameter')
 		# SSH = sshconnection.SSHConnection()
 		# SSH.open(self.UEIPAddress, self.UEUserName, self.UEPassword)
+		if self.runStage == '':
+			HELP.GenericHelp(CONST.Version)
+			sys.exit('Insufficient Parameter')
 		result = re.search('--nrUE', self.Build_OAI_UE_args)
 		if result is not None:
 			self.air_interface='nr-uesoftmodem'
@@ -406,12 +426,31 @@ class OaiCiTest():
 					self.AutoTerminateUEandeNB(HTML,RAN,COTS_UE,EPC,InfraUE)
 					return
 
-
 	def InitializeOAIUE(self,HTML,RAN,EPC,COTS_UE,InfraUE):
-		# if self.UEIPAddress == '' or self.UEUserName == '' or self.UEPassword == '' or self.UESourceCodePath == '':
-		# 	HELP.GenericHelp(CONST.Version)
-		# 	sys.exit('Insufficient Parameter')
+		if self.runStage == '':
+			HELP.GenericHelp(CONST.Version)
+			sys.exit('Insufficient Parameter')
+			
+		if self.air_interface == 'lte-uesoftmodem':
+			result = re.search('--no-L2-connect', str(self.Initialize_OAI_UE_args))
+			if result is None:
+				check_eNB = True
+				check_OAI_UE = False
+				pStatus = self.CheckProcessExist(check_eNB, check_OAI_UE,RAN,EPC)
+				if (pStatus < 0):
+					HTML.CreateHtmlTestRow(self.air_interface + ' ' + self.Initialize_OAI_UE_args, 'KO', pStatus)
+					HTML.CreateHtmlTabFooter(False)
+					self.ConditionalExit()
+			UE_prefix = ''
+		else:
+			UE_prefix = 'NR '
+		logging.debug('UE args' + str(self.Initialize_OAI_UE_args))
+		os.system('sed -i "s/<< ue_args >>/' + str(self.Initialize_OAI_UE_args) + '/g" ../colosseum-cm/ansible/oai.yml')
 
+	def InitializeOAIUE_back(self,HTML,RAN,EPC,COTS_UE,InfraUE):
+		if self.runStage == '':
+			HELP.GenericHelp(CONST.Version)
+			sys.exit('Insufficient Parameter')
 			
 		if self.air_interface == 'lte-uesoftmodem':
 			result = re.search('--no-L2-connect', str(self.Initialize_OAI_UE_args))
@@ -1645,6 +1684,15 @@ class OaiCiTest():
 		HTML.CreateHtmlTestRowQueue(self.ping_args, 'KO', len(self.UEDevices), html_queue)
 
 	def PingNoS1(self,HTML,RAN,EPC,COTS_UE,InfraUE):
+		ping_from_eNB = re.search('oaitun_enb1', str(self.ping_args))
+		ping_time = self.Ping_ComputeTime()
+		
+		if ping_from_eNB is not None:
+			os.system('sed -i "s/<< dl_ping_time >>/' + ping_time + '/g" ../colosseum-cm/ansible/oai.yml')
+		else:
+			os.system('sed -i "s/<< ul_ping_time >>/' + ping_time + '/g" ../colosseum-cm/ansible/oai.yml')
+
+	def PingNoS1_back(self,HTML,RAN,EPC,COTS_UE,InfraUE):
 		# SSH=sshconnection.SSHConnection()
 		# check_eNB = True
 		# check_OAI_UE = True
@@ -2549,6 +2597,23 @@ class OaiCiTest():
 			os.kill(os.getppid(),signal.SIGUSR1)
 
 	def IperfNoS1(self,HTML,RAN,EPC,COTS_UE,InfraUE):
+		iperf_time = self.Iperf_ComputeTime()
+		server_on_enb = re.search('-R', str(self.iperf_args))
+		if server_on_enb is not None:
+			# UL Iperf
+			modified_options = self.Iperf_ComputeModifiedBW(0, 1)
+			print(str(modified_options))
+			iperf_bw = self.Iperf_ComputeBW(modified_options)
+			modified_options = modified_options.replace('-R','')
+			os.system('sed -i "s/<< dl_iperf_time >>/' + iperf_time + '/g" ../colosseum-cm/ansible/oai.yml')
+			os.system('sed -i "s/<< dl_iperf_rate >>/' + iperf_bw + '/g" ../colosseum-cm/ansible/oai.yml')
+		else:
+			# DL Iperf
+			iperf_bw = self.Iperf_ComputeBW(self.iperf_args)
+			os.system('sed -i "s/<< ul_iperf_time >>/' + iperf_time + '/g" ../colosseum-cm/ansible/oai.yml')
+			os.system('sed -i "s/<< ul_iperf_rate >>/' + iperf_bw + '/g" ../colosseum-cm/ansible/oai.yml')
+	
+	def IperfNoS1_back(self,HTML,RAN,EPC,COTS_UE,InfraUE):
 		# SSH = sshconnection.SSHConnection()
 		# if RAN.eNBIPAddress == '' or RAN.eNBUserName == '' or RAN.eNBPassword == '' or self.UEIPAddress == '' or self.UEUserName == '' or self.UEPassword == '':
 		# 	HELP.GenericHelp(CONST.Version)

@@ -34,6 +34,8 @@
 
 // // Location of the executor node
 //def nodeExecutor = params.nodeExecutor
+def testXMLFile = params.pythonTestXmlFile
+def mainPythonAllXmlFiles = ""
 
 // // VM Lockable resources
 // def vmResource = params.vmLockableResource
@@ -73,38 +75,86 @@ pipeline {
             }
         }
         
-        stage ('Clone Ansible toolchain') {
+        // stage ('Clone Ansible toolchain') {
+        //     steps {
+        //         script {
+        //             gitlabCommitStatus(name: "Clone Ansible scripts") {
+        //                 sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+        //             }
+        //         }
+        //     }
+        // }
+        // stage ('Configure Ansible toolchain') {
+        //     steps {
+        //         script {
+        //             gitlabCommitStatus(name: "Configure Ansible toolchain") {
+        //                 dir ('colosseum-cm') {
+        //                     sh "git checkout oai-ci"
+        //                     sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        // stage ('Run Ansible toolchain') {
+        //     steps {
+        //         script {
+        //             gitlabCommitStatus(name: "Run Ansible toolchain") {
+        //                 dir ('colosseum-cm/ansible') {
+        //                     sh "ansible-playbook oai.yml -e 'ansible_python_interpreter=/usr/bin/python3'"
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        stage ("Build and Test") {
             steps {
                 script {
-                    gitlabCommitStatus(name: "Clone Ansible scripts") {
-                        sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+                    sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+                    dir ('colosseum-cm') {
+                        sh "git checkout oai-ci"
+                        sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
                     }
-                }
-            }
-        }
-        stage ('Configure Ansible toolchain') {
-            steps {
-                script {
-                    gitlabCommitStatus(name: "Configure Ansible toolchain") {
-                        dir ('colosseum-cm') {
-                            sh "git checkout oai-ci"
-                            sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
+                    dir ('ci-scripts') {
+                        // If not present picking a default XML file
+                        if (params.pythonTestXmlFile == null) {
+                            // picking default
+                            testXMLFile = 'xml_files/gnb_usrp_build.xml'
+                            echo "Test XML file(default):   ${testXMLFile}"
+                            mainPythonAllXmlFiles += "--XMLTestFile=" + testXMLFile + " "
+                        } else {
+                            String[] myXmlTestSuite = testXMLFile.split("\\r?\\n")
+                            for (xmlFile in myXmlTestSuite) {
+                                if (fileExists(xmlFile)) {
+                                    mainPythonAllXmlFiles += "--XMLTestFile=" + xmlFile + " "
+                                    echo "Test XML file         :   ${xmlFile}"
+                                }
+                            }
                         }
-                    }
-                }
-            }
-        }
-        stage ('Run Ansible toolchain') {
-            steps {
-                script {
-                    gitlabCommitStatus(name: "Run Ansible toolchain") {
-                        dir ('colosseum-cm/ansible') {
-                            sh "ansible-playbook oai.yml -e 'ansible_python_interpreter=/usr/bin/python3'"
+                        sh "python3 NU_main.py --mode=InitiateHtml --eNBRepository=${eNB_Repository} --eNBBranch=${eNB_Branch} --eNBCommitID=${eNB_CommitID} --eNBTargetBranch=${eNB_TargetBranch} ${mainPythonAllXmlFiles}"
+                        String[] myXmlTestSuite = testXMLFile.split("\\r?\\n")
+                        for (xmlFile in myXmlTestSuite) {
+                            if (fileExists(xmlFile)) {
+                                try {
+                                    runStage = "Pre"
+                                    sh "python3 NU_main.py --mode=TesteNB --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --XMLTestFile=${xmlFile} --runStage=${runStage}"
+                                    //sh "python3 NU_main.py --mode=TesteNB --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --eNB_AllowMerge=${eNB_AllowMergeRequestProcess} --XMLTestFile=${xmlFile}"
+                                    //sh "python3 NU_main.py --mode=TesteNB --eNBSourceCodePath=${params.eNB_SourceCodePath} --UESourceCodePath=${params.eNB_SourceCodePath} --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNB_AllowMerge=${eNB_AllowMergeRequestProcess} --eNBTargetBranch=${params.eNB_TargetBranch} --XMLTestFile=${xmlFile}"
+                                } catch (Exception e) {
+                                    currentBuild.result = 'FAILURE'
+                                    buildStageStatus = false
+                                }
+                            }
                         }
+                        //sh "python3 NU_main.py --mode=FinalizeHtml --finalStatus=${buildStageStatus} --eNBIPAddress=${params.eNB_IPAddress} --eNBUserName=${eNB_Username} --eNBPassword=${eNB_Password}"
+                    //}
+                    }
+                    dir ('colosseum-cm/ansible') {
+                        sh "ansible-playbook oai.yml -e 'ansible_python_interpreter=/usr/bin/python3'"
                     }
                 }
             }
-        }
+	    }
 
         stage ("Analyze") {
             parallel {
@@ -149,6 +199,100 @@ pipeline {
             }
         }        
     }
+    // stages {
+    //     stage ("print latest commit info") {
+    //         steps {
+    //             script {
+    //                 gitlabCommitStatus(name: "Print latest commit info") {
+    //                     echo "Building on: "
+    //                     echo "  Repository -- ${GIT_URL}"
+    //                     echo "  Branch -- ${GIT_BRANCH}"
+    //                     echo "  Commit -- ${GIT_COMMIT}"
+    //                     echo "ENV eNB_mergeRequest: ${params.eNB_mergeRequest}"
+    //                     echo "ENV eNB_Repository: ${params.eNB_Repository}"
+    //                     echo "ENV source branch: ${params.eNB_Branch}"
+    //                     echo "ENV target branch: ${params.eNB_TargetBranch}"
+    //                 }
+    //             }
+    //         }
+    //     }
+        
+    //     stage ('Clone Ansible toolchain') {
+    //         steps {
+    //             script {
+    //                 gitlabCommitStatus(name: "Clone Ansible scripts") {
+    //                     sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     stage ('Configure Ansible toolchain') {
+    //         steps {
+    //             script {
+    //                 gitlabCommitStatus(name: "Configure Ansible toolchain") {
+    //                     dir ('colosseum-cm') {
+    //                         sh "git checkout oai-ci"
+    //                         sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     stage ('Run Ansible toolchain') {
+    //         steps {
+    //             script {
+    //                 gitlabCommitStatus(name: "Run Ansible toolchain") {
+    //                     dir ('colosseum-cm/ansible') {
+    //                         sh "ansible-playbook oai.yml -e 'ansible_python_interpreter=/usr/bin/python3'"
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     stage ("Analyze") {
+    //         parallel {
+	// 			stage('Analyze NR UE') {
+	// 				steps {
+	// 					script {
+	// 						gitlabCommitStatus(name: "Analyze NR UE") {
+	// 								echo '\u2705 \u001B[32mAnalyze NR UE\u001B[0m'
+	// 								sh "python3 ci-scripts/NU_main.py --mode=AnalyzeOAIUE --UEIPAddress=dummy --UEUserName=dummy --UEPassword=dummy"
+	// 						}
+	// 					}
+	// 					/*
+	// 					post {
+	// 						success {
+	// 							script {
+	// 							termStatusArray[termUE] = true
+	// 							}
+	// 						}
+	// 					}
+	// 					*/
+	// 				}
+	// 			}
+	// 			stage('Analyze NR eNB') {
+	// 				steps {
+	// 					script {
+	// 						gitlabCommitStatus(name: "Analyze NR eNB") {
+	// 								echo '\u2705 \u001B[32mAnalyze NR eNB\u001B[0m'
+	// 								sh "python3 ci-scripts/NU_main.py --mode=AnalyzeeNB --eNBIPAddress=dummy --eNBUserName=dummy --eNBPassword=dummy"
+	// 						}
+	// 					}
+	// 					/*
+	// 					post {
+	// 						success {
+	// 							script {
+	// 							termStatusArray[termENB] = true
+	// 							}
+	// 						}
+	// 					}
+	// 					*/
+	// 				}
+	// 			}
+    //         }
+    //     }        
+    // }
     // post {
     //     always {
     //         script {

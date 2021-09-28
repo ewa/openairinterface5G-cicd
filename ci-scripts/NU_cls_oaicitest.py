@@ -167,7 +167,7 @@ class OaiCiTest():
 	def BuildOAIUE(self,HTML):
 		if self.runStage == '' or self.ranRepository == '' or self.ranBranch == '' or self.ranCommitID == '':
 			HELP.GenericHelp(CONST.Version)
-			sys.exit('Insufficient Parameter')
+			sys.exit('BuildOAIUE: Insufficient Parameter')
 		result = re.search('--nrUE', self.Build_OAI_UE_args)
 		if result is not None:
 			self.air_interface='nr-uesoftmodem'
@@ -393,7 +393,7 @@ class OaiCiTest():
 		if self.ue_id=='':#no ID specified, then it is a COTS controlled by ADB
 			if self.ADBIPAddress == '' or self.ADBUserName == '' or self.ADBPassword == '':
 				HELP.GenericHelp(CONST.Version)
-				sys.exit('Insufficient Parameter')
+				sys.exit('InitializeUE: Insufficient Parameter')
 			multi_jobs = []
 			i = 0
 			for device_id in self.UEDevices:
@@ -429,7 +429,7 @@ class OaiCiTest():
 	def InitializeOAIUE(self,HTML,RAN,EPC,COTS_UE,InfraUE):
 		if self.runStage == '':
 			HELP.GenericHelp(CONST.Version)
-			sys.exit('Insufficient Parameter')
+			sys.exit('InitializeOAIUE: Insufficient Parameter')
 			
 		if self.air_interface == 'lte-uesoftmodem':
 			result = re.search('--no-L2-connect', str(self.Initialize_OAI_UE_args))
@@ -1273,7 +1273,7 @@ class OaiCiTest():
 	def GetAllUEDevices(self, terminate_ue_flag):
 		if self.ADBIPAddress == '' or self.ADBUserName == '' or self.ADBPassword == '':
 			HELP.GenericHelp(CONST.Version)
-			sys.exit('Insufficient Parameter')
+			sys.exit('GetAllUEDevices: Insufficient Parameter')
 		SSH = sshconnection.SSHConnection()
 		SSH.open(self.ADBIPAddress, self.ADBUserName, self.ADBPassword)
 		if self.ADBCentralized:
@@ -1323,7 +1323,7 @@ class OaiCiTest():
 	def GetAllCatMDevices(self, terminate_ue_flag):
 		if self.ADBIPAddress == '' or self.ADBUserName == '' or self.ADBPassword == '':
 			HELP.GenericHelp(CONST.Version)
-			sys.exit('Insufficient Parameter')
+			sys.exit('GetAllCatMDevices: Insufficient Parameter')
 		SSH = sshconnection.SSHConnection()
 		SSH.open(self.ADBIPAddress, self.ADBUserName, self.ADBPassword)
 		if self.ADBCentralized:
@@ -1795,7 +1795,7 @@ class OaiCiTest():
 			return
 		if EPC.IPAddress == '' or EPC.UserName == '' or EPC.Password == '' or EPC.SourceCodePath == '':
 			HELP.GenericHelp(CONST.Version)
-			sys.exit('Insufficient Parameter')
+			sys.exit('Ping: Insufficient Parameter')
 		check_eNB = True
 		if (len(self.UEDevices) == 1) and (self.UEDevices[0] == 'OAI-UE'):
 			check_OAI_UE = True
@@ -2746,7 +2746,7 @@ class OaiCiTest():
 			return
 		if EPC.IPAddress == '' or EPC.UserName == '' or EPC.Password == '' or EPC.SourceCodePath == '' or self.ADBIPAddress == '' or self.ADBUserName == '' or self.ADBPassword == '':
 			HELP.GenericHelp(CONST.Version)
-			sys.exit('Insufficient Parameter')
+			sys.exit('Iperf: Insufficient Parameter')
 		check_eNB = True
 		if (len(self.UEDevices) == 1) and (self.UEDevices[0] == 'OAI-UE'):
 			check_OAI_UE = True

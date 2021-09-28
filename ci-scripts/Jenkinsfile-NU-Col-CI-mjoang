@@ -131,7 +131,7 @@ pipeline {
                                 }
                             }
                         }
-                        sh "python3 NU_main.py --mode=InitiateHtml --eNBRepository=${eNB_Repository} --eNBBranch=${eNB_Branch} --eNBCommitID=${eNB_CommitID} --eNBTargetBranch=${eNB_TargetBranch} ${mainPythonAllXmlFiles}"
+                        sh "python3 NU_main.py --mode=InitiateHtml --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} ${mainPythonAllXmlFiles}"
                         String[] myXmlTestSuite = testXMLFile.split("\\r?\\n")
                         for (xmlFile in myXmlTestSuite) {
                             if (fileExists(xmlFile)) {

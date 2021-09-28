@@ -630,13 +630,13 @@ elif re.match('^InitiateHtml$', mode, re.IGNORECASE):
 		HTML.nbTestXMLfiles=foundCount
 	
 	print("ADBIPAddress: " + CiTestObj.ADBIPAddress)
-	# if (CiTestObj.ADBIPAddress != 'none') and (CiTestObj.ADBIPAddress != 'modules'):
-	# 	terminate_ue_flag = False
-	# 	CiTestObj.GetAllUEDevices(terminate_ue_flag)
-	# 	CiTestObj.GetAllCatMDevices(terminate_ue_flag)
-	# 	HTML.SethtmlUEConnected(len(CiTestObj.UEDevices) + len(CiTestObj.CatMDevices))
-	# 	HTML.htmlNb_Smartphones=len(CiTestObj.UEDevices)
-	# 	HTML.htmlNb_CATM_Modules=len(CiTestObj.CatMDevices)
+	if (CiTestObj.ADBIPAddress != 'none') and (CiTestObj.ADBIPAddress != 'modules'):
+		terminate_ue_flag = False
+		CiTestObj.GetAllUEDevices(terminate_ue_flag)
+		CiTestObj.GetAllCatMDevices(terminate_ue_flag)
+		HTML.SethtmlUEConnected(len(CiTestObj.UEDevices) + len(CiTestObj.CatMDevices))
+		HTML.htmlNb_Smartphones=len(CiTestObj.UEDevices)
+		HTML.htmlNb_CATM_Modules=len(CiTestObj.CatMDevices)
 	HTML.CreateHtmlHeader(CiTestObj.ADBIPAddress)
 elif re.match('^FinalizeHtml$', mode, re.IGNORECASE):
 	logging.debug('\u001B[1m----------------------------------------\u001B[0m')

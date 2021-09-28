@@ -165,7 +165,7 @@ class OaiCiTest():
 		self.runStage = ''  # For NU CI - 'Pre' or 'Post'
 
 	def BuildOAIUE(self,HTML):
-		if self.runStage == '' orself.ranRepository == '' or self.ranBranch == '' or self.ranCommitID == '':
+		if self.runStage == '' or self.ranRepository == '' or self.ranBranch == '' or self.ranCommitID == '':
 			HELP.GenericHelp(CONST.Version)
 			sys.exit('Insufficient Parameter')
 		result = re.search('--nrUE', self.Build_OAI_UE_args)

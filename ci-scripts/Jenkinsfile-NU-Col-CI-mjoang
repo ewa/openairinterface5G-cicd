@@ -132,12 +132,12 @@ pipeline {
                             }
                         }
                         runStage = "Pre"
-                        sh "python3 NU_main.py --mode=InitiateHtml --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --ADBIPAddress='None' ${mainPythonAllXmlFiles}  --runStage=${runStage}"
+                        sh "python3 NU_main.py --mode=InitiateHtml --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --ADBIPAddress='none' ${mainPythonAllXmlFiles}  --runStage=${runStage}"
                         String[] myXmlTestSuite = testXMLFile.split("\\r?\\n")
                         for (xmlFile in myXmlTestSuite) {
                             if (fileExists(xmlFile)) {
                                 try {
-                                    sh "python3 NU_main.py --mode=TesteNB --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --ADBIPAddress='None' --XMLTestFile=${xmlFile} --runStage=${runStage}"
+                                    sh "python3 NU_main.py --mode=TesteNB --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --ADBIPAddress='none' --XMLTestFile=${xmlFile} --runStage=${runStage}"
                                     //sh "python3 NU_main.py --mode=TesteNB --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --eNB_AllowMerge=${eNB_AllowMergeRequestProcess} --XMLTestFile=${xmlFile}"
                                     //sh "python3 NU_main.py --mode=TesteNB --eNBSourceCodePath=${params.eNB_SourceCodePath} --UESourceCodePath=${params.eNB_SourceCodePath} --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNB_AllowMerge=${eNB_AllowMergeRequestProcess} --eNBTargetBranch=${params.eNB_TargetBranch} --XMLTestFile=${xmlFile}"
                                 } catch (Exception e) {

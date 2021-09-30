@@ -110,45 +110,45 @@ pipeline {
         stage ("Build and Test") {
             steps {
                 script {
-                    // sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
-                    // dir ('colosseum-cm') {
-                    //     sh "git checkout oai-ci"
-                    //     sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
-                    // }
-                    // dir ('ci-scripts') {
-                    //     // If not present picking a default XML file
-                    //     if (params.pythonTestXmlFile == null) {
-                    //         // picking default
-                    //         testXMLFile = 'xml_files/gnb_usrp_build.xml'
-                    //         echo "Test XML file(default):   ${testXMLFile}"
-                    //         mainPythonAllXmlFiles += "--XMLTestFile=" + testXMLFile + " "
-                    //     } else {
-                    //         String[] myXmlTestSuite = testXMLFile.split("\\r?\\n")
-                    //         for (xmlFile in myXmlTestSuite) {
-                    //             if (fileExists(xmlFile)) {
-                    //                 mainPythonAllXmlFiles += "--XMLTestFile=" + xmlFile + " "
-                    //                 echo "Test XML file         :   ${xmlFile}"
-                    //             }
-                    //         }
-                    //     }
-                    //     runStage = "Pre"
-                    //     sh "python3 NU_main.py --mode=InitiateHtml --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --ADBIPAddress='none' ${mainPythonAllXmlFiles}  --runStage=${runStage}"
-                    //     String[] myXmlTestSuite = testXMLFile.split("\\r?\\n")
-                    //     for (xmlFile in myXmlTestSuite) {
-                    //         if (fileExists(xmlFile)) {
-                    //             try {
-                    //                 sh "python3 NU_main.py --mode=TesteNB --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --ADBIPAddress='none' --XMLTestFile=${xmlFile} --runStage=${runStage}"
-                    //                 //sh "python3 NU_main.py --mode=TesteNB --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --eNB_AllowMerge=${eNB_AllowMergeRequestProcess} --XMLTestFile=${xmlFile}"
-                    //                 //sh "python3 NU_main.py --mode=TesteNB --eNBSourceCodePath=${params.eNB_SourceCodePath} --UESourceCodePath=${params.eNB_SourceCodePath} --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNB_AllowMerge=${eNB_AllowMergeRequestProcess} --eNBTargetBranch=${params.eNB_TargetBranch} --XMLTestFile=${xmlFile}"
-                    //             } catch (Exception e) {
-                    //                 currentBuild.result = 'FAILURE'
-                    //                 buildStageStatus = false
-                    //             }
-                    //         }
-                    //     }
-                    //     //sh "python3 NU_main.py --mode=FinalizeHtml --finalStatus=${buildStageStatus} --eNBIPAddress=${params.eNB_IPAddress} --eNBUserName=${eNB_Username} --eNBPassword=${eNB_Password}"
-                    // //}
-                    // }
+                    sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+                    dir ('colosseum-cm') {
+                        sh "git checkout oai-ci"
+                        sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
+                    }
+                    dir ('ci-scripts') {
+                        // If not present picking a default XML file
+                        if (params.pythonTestXmlFile == null) {
+                            // picking default
+                            testXMLFile = 'xml_files/gnb_usrp_build.xml'
+                            echo "Test XML file(default):   ${testXMLFile}"
+                            mainPythonAllXmlFiles += "--XMLTestFile=" + testXMLFile + " "
+                        } else {
+                            String[] myXmlTestSuite = testXMLFile.split("\\r?\\n")
+                            for (xmlFile in myXmlTestSuite) {
+                                if (fileExists(xmlFile)) {
+                                    mainPythonAllXmlFiles += "--XMLTestFile=" + xmlFile + " "
+                                    echo "Test XML file         :   ${xmlFile}"
+                                }
+                            }
+                        }
+                        runStage = "Pre"
+                        sh "python3 NU_main.py --mode=InitiateHtml --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --ADBIPAddress='none' ${mainPythonAllXmlFiles}  --runStage=${runStage}"
+                        String[] myXmlTestSuite = testXMLFile.split("\\r?\\n")
+                        for (xmlFile in myXmlTestSuite) {
+                            if (fileExists(xmlFile)) {
+                                try {
+                                    sh "python3 NU_main.py --mode=TesteNB --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --ADBIPAddress='none' --XMLTestFile=${xmlFile} --runStage=${runStage}"
+                                    //sh "python3 NU_main.py --mode=TesteNB --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --eNB_AllowMerge=${eNB_AllowMergeRequestProcess} --XMLTestFile=${xmlFile}"
+                                    //sh "python3 NU_main.py --mode=TesteNB --eNBSourceCodePath=${params.eNB_SourceCodePath} --UESourceCodePath=${params.eNB_SourceCodePath} --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNB_AllowMerge=${eNB_AllowMergeRequestProcess} --eNBTargetBranch=${params.eNB_TargetBranch} --XMLTestFile=${xmlFile}"
+                                } catch (Exception e) {
+                                    currentBuild.result = 'FAILURE'
+                                    buildStageStatus = false
+                                }
+                            }
+                        }
+                        //sh "python3 NU_main.py --mode=FinalizeHtml --finalStatus=${buildStageStatus} --eNBIPAddress=${params.eNB_IPAddress} --eNBUserName=${eNB_Username} --eNBPassword=${eNB_Password}"
+                    //}
+                    }
                     dir ('colosseum-cm/ansible') {
                         sh "ansible-playbook oai.yml -e 'ansible_python_interpreter=/usr/bin/python3'"
                     }
@@ -156,48 +156,48 @@ pipeline {
             }
 	    }
 
-        stage ("Analyze") {
-            parallel {
-				stage('Analyze NR UE') {
-					steps {
-						script {
-							gitlabCommitStatus(name: "Analyze NR UE") {
-									echo '\u2705 \u001B[32mAnalyze NR UE\u001B[0m'
-									sh "python3 ci-scripts/NU_main.py --mode=AnalyzeOAIUE --UEIPAddress=dummy --UEUserName=dummy --UEPassword=dummy"
-							}
-						}
-						/*
-						post {
-							success {
-								script {
-								termStatusArray[termUE] = true
-								}
-							}
-						}
-						*/
-					}
-				}
-				stage('Analyze NR eNB') {
-					steps {
-						script {
-							gitlabCommitStatus(name: "Analyze NR eNB") {
-									echo '\u2705 \u001B[32mAnalyze NR eNB\u001B[0m'
-									sh "python3 ci-scripts/NU_main.py --mode=AnalyzeeNB --eNBIPAddress=dummy --eNBUserName=dummy --eNBPassword=dummy"
-							}
-						}
-						/*
-						post {
-							success {
-								script {
-								termStatusArray[termENB] = true
-								}
-							}
-						}
-						*/
-					}
-				}
-            }
-        }        
+        // stage ("Analyze") {
+        //     parallel {
+		// 		stage('Analyze NR UE') {
+		// 			steps {
+		// 				script {
+		// 					gitlabCommitStatus(name: "Analyze NR UE") {
+		// 							echo '\u2705 \u001B[32mAnalyze NR UE\u001B[0m'
+		// 							sh "python3 ci-scripts/NU_main.py --mode=AnalyzeOAIUE --UEIPAddress=dummy --UEUserName=dummy --UEPassword=dummy"
+		// 					}
+		// 				}
+		// 				/*
+		// 				post {
+		// 					success {
+		// 						script {
+		// 						termStatusArray[termUE] = true
+		// 						}
+		// 					}
+		// 				}
+		// 				*/
+		// 			}
+		// 		}
+		// 		stage('Analyze NR eNB') {
+		// 			steps {
+		// 				script {
+		// 					gitlabCommitStatus(name: "Analyze NR eNB") {
+		// 							echo '\u2705 \u001B[32mAnalyze NR eNB\u001B[0m'
+		// 							sh "python3 ci-scripts/NU_main.py --mode=AnalyzeeNB --eNBIPAddress=dummy --eNBUserName=dummy --eNBPassword=dummy"
+		// 					}
+		// 				}
+		// 				/*
+		// 				post {
+		// 					success {
+		// 						script {
+		// 						termStatusArray[termENB] = true
+		// 						}
+		// 					}
+		// 				}
+		// 				*/
+		// 			}
+		// 		}
+        //     }
+        // }        
     }
     // stages {
     //     stage ("print latest commit info") {

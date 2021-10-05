@@ -52,7 +52,7 @@
 	<testCase id="030101">
 		<class>Initialize_eNB</class>
 		<desc>Initialize eNB (TDD/Band78/40MHz)</desc>
-		<Initialize_eNB_args>-O targets/PROJECTS/GENERIC-NR-5GC/CONF/gnb.sa.band78.fr1.106PRB.usrpb210.conf --noS1 --phy-test --nokrnmod 1 </Initialize_eNB_args>
+		<Initialize_eNB_args>-O ci-scripts/conf_files/gnb.band78.tm1.106PRB.usrpn300.conf --noS1 --phy-test --nokrnmod 1 </Initialize_eNB_args>
     <air_interface>NR</air_interface>
 	</testCase>
 

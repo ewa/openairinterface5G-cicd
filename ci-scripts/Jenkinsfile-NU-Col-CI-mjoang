@@ -110,11 +110,11 @@ pipeline {
         stage ("Build and Test") {
             steps {
                 script {
-                    sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
-                    dir ('colosseum-cm') {
-                        sh "git checkout oai-ci"
-                        sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
-                    }
+                    //sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+                    //dir ('colosseum-cm') {
+                    //    sh "git checkout oai-ci"
+                    //    sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
+                    //}
                     dir ('ci-scripts') {
                         // If not present picking a default XML file
                         if (params.pythonTestXmlFile == null) {

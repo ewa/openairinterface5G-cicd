@@ -2058,6 +2058,7 @@ class OaiCiTest():
 				req_bandwidth = '%.1f Gbits/sec' % req_bw
 				req_bw = req_bw * 1000000000
 
+		logging.debug('Iperf_analyzeV2Output requested bandwidth value = ' + str(req_bandwidth))
 		client_file = open(filename, 'r')
 		#for line in client_file.readlines():
 		text = client_file.read()
@@ -2071,6 +2072,7 @@ class OaiCiTest():
 			return -1
 		
 		result = re.search('Server Report:\\\\r\\\\n(?:|\[ *\d+\].*) (?P<bitrate>[0-9\.]+ [KMG]bits\/sec) +(?P<jitter>[0-9\.]+ ms) +(\d+\/..\d+) +(\((?P<packetloss>[0-9\.]+)%\))', str(text))
+		logging.debug('Iperf_analyzeV2Output Server Report result = ' + str(result))
 		if result is not None:
 			bitrate = result.group('bitrate')
 			packetloss = result.group('packetloss')
@@ -2733,6 +2735,7 @@ class OaiCiTest():
 			status_queue.put('10.0.1.2')
 			status_queue.put('Sink Test : no check')
 		else:
+			
 			clientStatus = self.Iperf_analyzeV2Output(lock, '10.0.1.2', 'OAI-UE', status_queue, modified_options, client_log_file, 0)
 
 		if (clientStatus == -1):

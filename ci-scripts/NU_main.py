@@ -542,7 +542,7 @@ elif re.match('^AnalyzeOAIUE$', mode, re.IGNORECASE):
 	if CiTestObj.UEIPAddress == '' or CiTestObj.UEUserName == '' or CiTestObj.UEPassword == '':
 		HELP.GenericHelp(CONST.Version)
 		sys.exit('Insufficient Parameter')
-	signal.signal(signal.SIGUSR1, receive_signal)
+		#signal.signal(signal.SIGUSR1, receive_signal)
 	CiTestObj.AnalyzeOAIUE(HTML,RAN,COTS_UE,EPC)
 elif re.match('^TerminateHSS$', mode, re.IGNORECASE):
 	if EPC.IPAddress == '' or EPC.UserName == '' or EPC.Password == '' or EPC.Type == '' or EPC.SourceCodePath == '':

@@ -108,6 +108,10 @@ class RANManagement():
 			HELP.GenericHelp(CONST.Version)
 			sys.exit('Insufficient Parameter')
 
+		if self.runStage == 'Post':
+			HTML.CreateHtmlTestRow(self.Build_eNB_args, 'OK', CONST.ALL_PROCESSES_OK)
+			return
+
 		# Check if we build an 5G-NR gNB or an LTE eNB or an OCP eNB
 		result = re.search('--eNBocp', self.Build_eNB_args)
 		if result is not None:
@@ -381,6 +385,10 @@ class RANManagement():
 			HELP.GenericHelp(CONST.Version)
 			sys.exit('Insufficient Parameter')
 		
+		if self.runStage == 'Post':
+			self.AnalyzeeNB(HTML, EPC)
+			return
+
 		#if self.runStage == 'Pre':
 		logging.debug("InitializeeNB")
 		self.testCase_id = HTML.testCase_id
@@ -754,25 +762,25 @@ class RANManagement():
 	# 	self.eNBmbmsEnables[int(self.eNB_instance)] = False
 	# 	self.eNBstatuses[int(self.eNB_instance)] = -1
 
-	# def AnalyzeeNB(self, HTML, EPC):
-	# 	fileToAnalyze="logfiles/gnb-logs/gnb.log"
-	# 	nodeB_prefix = 'g'
-	# 	if path.exists(fileToAnalyze):
-	# 		logging.info('\u001B[1m Analyzing ' + nodeB_prefix + 'NB logfile \u001B[0m ' + fileToAnalyze)
-	# 		logStatus = self.AnalyzeLogFile_eNB(fileToAnalyze, HTML)
-	# 		#logStatus = -1
-	# 		if (logStatus < 0):
-	# 			logging.info('\u001B[1m' + nodeB_prefix + 'NB Failed \u001B[0m')
-	# 			#HTML.CreateHtmlTestRow('N/A', 'KO', logStatus)
-	# 			self.preamtureExit = True
-	# 			self.eNBmbmsEnables[int(self.eNB_instance)] = False
-	# 			sys.exit('Failed Scenario')
-	# 			#return
-	# 		else:
-	# 			logging.info('\u001B[1m' + nodeB_prefix + 'NB Completed \u001B[0m')
-	# 			#HTML.CreateHtmlTestRow(self.runtime_stats, 'OK', CONST.ALL_PROCESSES_OK)
-	# 	self.eNBmbmsEnables[int(self.eNB_instance)] = False
-	# 	self.eNBstatuses[int(self.eNB_instance)] = -1
+	def AnalyzeeNB(self, HTML, EPC):
+		fileToAnalyze="../logfiles/gnb-logs/gnb.log"
+		nodeB_prefix = 'g'
+		if path.exists(fileToAnalyze):
+			logging.info('\u001B[1m Analyzing ' + nodeB_prefix + 'NB logfile \u001B[0m ' + fileToAnalyze)
+			logStatus = self.AnalyzeLogFile_eNB(fileToAnalyze, HTML)
+			#logStatus = -1
+			if (logStatus < 0):
+				logging.info('\u001B[1m' + nodeB_prefix + 'NB Failed \u001B[0m')
+				HTML.CreateHtmlTestRow('N/A', 'KO', logStatus)
+				self.preamtureExit = True
+				self.eNBmbmsEnables[int(self.eNB_instance)] = False
+				sys.exit('Failed Scenario')
+				#return
+			else:
+				logging.info('\u001B[1m' + nodeB_prefix + 'NB Completed \u001B[0m')
+				HTML.CreateHtmlTestRow(self.runtime_stats, 'OK', CONST.ALL_PROCESSES_OK)
+		self.eNBmbmsEnables[int(self.eNB_instance)] = False
+		self.eNBstatuses[int(self.eNB_instance)] = -1
         
 	def LogCollecteNB(self):
 		mySSH = SSH.SSHConnection()

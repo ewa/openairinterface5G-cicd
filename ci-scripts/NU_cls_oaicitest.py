@@ -431,6 +431,10 @@ class OaiCiTest():
 			HELP.GenericHelp(CONST.Version)
 			sys.exit('InitializeOAIUE: Insufficient Parameter')
 			
+		if self.runStage == 'Post':
+			self.AnalyzeOAIUE(HTML,RAN,COTS_UE,EPC)
+			return
+
 		if self.air_interface == 'lte-uesoftmodem':
 			result = re.search('--no-L2-connect', str(self.Initialize_OAI_UE_args))
 			if result is None:
@@ -1687,10 +1691,103 @@ class OaiCiTest():
 		ping_from_eNB = re.search('oaitun_enb1', str(self.ping_args))
 		ping_time = self.Ping_ComputeTime()
 		
+		if self.runStage == 'Pre':
+			if ping_from_eNB is not None:
+				os.system('sed -i "s/<< dl_ping_time >>/' + ping_time + '/g" ../colosseum-cm/ansible/oai.yml')
+			else:
+				os.system('sed -i "s/<< ul_ping_time >>/' + ping_time + '/g" ../colosseum-cm/ansible/oai.yml')
+			return
+
 		if ping_from_eNB is not None:
-			os.system('sed -i "s/<< dl_ping_time >>/' + ping_time + '/g" ../colosseum-cm/ansible/oai.yml')
+			fileToAnalyze="../logfiles/gnb-logs/pingDL.log"
+			prefix="DL"
 		else:
-			os.system('sed -i "s/<< ul_ping_time >>/' + ping_time + '/g" ../colosseum-cm/ansible/oai.yml')
+			fileToAnalyze="../logfiles/ue-logs/pingUL.log"
+			prefix="UL"
+
+		if path.exists(fileToAnalyze):
+			logging.info('\u001B[1m Analyzing ' + prefix + ' ping logfile \u001B[0m ' + fileToAnalyze)
+			logStatus = self.AnalyzePing(fileToAnalyze, HTML)
+			#logStatus = -1
+			if (logStatus < 0):
+				logging.info('\u001B[1m' + prefix + 'ping Failed \u001B[0m')
+				HTML.CreateHtmlTestRow('N/A', 'KO', logStatus)
+				self.preamtureExit = True
+				#self.eNBmbmsEnables[int(self.eNB_instance)] = False
+				#sys.exit('Failed Scenario')
+				return
+			else:
+				logging.info('\u001B[1m' + prefix + ' ping Completed \u001B[0m')
+				#HTML.CreateHtmlTestRow(self.runtime_stats, 'OK', CONST.ALL_PROCESSES_OK)
+
+	def AnalyzePing(self, pingLogFile, HTML):
+		if (not os.path.isfile('./' + pingLogFile)):
+			return -1
+
+		ping_log_file = open('./' + pingLogFile, 'r')
+
+		#line_cnt=0 #log file line counter
+		#for line in ping_log_file.readlines():
+			#line_cnt+=1
+			# Runtime statistics
+			#result = re.search('Run time:' ,str(line))
+		line = ping_log_file.read()
+		#logging.debug('\u001B[1;37;41m ' + line + ' \u001B[0m')
+		pktloss_result = re.search(', (?P<packetloss>[0-9\.]+)% packet loss, time [0-9\.]+ms', str(line))
+		
+		rtt_result = re.search('rtt min\/avg\/max\/mdev = (?P<rtt_min>[0-9\.]+)\/(?P<rtt_avg>[0-9\.]+)\/(?P<rtt_max>[0-9\.]+)\/[0-9\.]+ ms', str(line))
+			
+		if pktloss_result is None:
+			message = 'Packet Loss Not Found!'
+			logging.debug('\u001B[1;37;41m ' + message + ' \u001B[0m')
+			self.PingNoS1_wrong_exit(message,HTML)
+			return -1
+		packetloss = pktloss_result.group('packetloss')
+		if float(packetloss) == 100:
+			message = 'Packet Loss is 100%'
+			logging.debug('\u001B[1;37;41m ' + message + ' \u001B[0m')
+			self.PingNoS1_wrong_exit(message,HTML)
+			return -1
+		if rtt_result is None:
+			message = 'Ping RTT_Min RTT_Avg RTT_Max Not Found!'
+			logging.debug('\u001B[1;37;41m ' + message + ' \u001B[0m')
+			self.PingNoS1_wrong_exit(message,HTML)
+			return -1
+		else:
+			rtt_min = rtt_result.group('rtt_min')
+			rtt_avg = rtt_result.group('rtt_avg')
+			rtt_max = rtt_result.group('rtt_max')
+
+		pal_msg = 'Packet Loss : ' + packetloss + '%'
+		min_msg = 'RTT(Min)    : ' + rtt_min + ' ms'
+		avg_msg = 'RTT(Avg)    : ' + rtt_avg + ' ms'
+		max_msg = 'RTT(Max)    : ' + rtt_max + ' ms'
+		logging.debug('\u001B[1;37;44m OAI UE ping result \u001B[0m')
+		logging.debug('\u001B[1;34m    ' + pal_msg + '\u001B[0m')
+		logging.debug('\u001B[1;34m    ' + min_msg + '\u001B[0m')
+		logging.debug('\u001B[1;34m    ' + avg_msg + '\u001B[0m')
+		logging.debug('\u001B[1;34m    ' + max_msg + '\u001B[0m')
+		qMsg = pal_msg + '\n' + min_msg + '\n' + avg_msg + '\n' + max_msg
+		packetLossOK = True
+		if packetloss is not None:
+			if float(packetloss) > float(self.ping_packetloss_threshold):
+				qMsg += '\nPacket Loss too high'
+				logging.debug('\u001B[1;37;41m Packet Loss too high \u001B[0m')
+				packetLossOK = False
+			elif float(packetloss) > 0:
+				qMsg += '\nPacket Loss is not 0%'
+				logging.debug('\u001B[1;30;43m Packet Loss is not 0% \u001B[0m')
+		html_queue = SimpleQueue()
+		html_cell = '<pre style="background-color:white">OAI UE ping result\n' + qMsg + '</pre>'
+		html_queue.put(html_cell)
+		if packetLossOK:
+			HTML.CreateHtmlTestRowQueue(self.ping_args, 'OK', len(self.UEDevices), html_queue)
+		else:
+			HTML.CreateHtmlTestRowQueue(self.ping_args, 'KO', len(self.UEDevices), html_queue)
+
+		ping_log_file.close()
+		logging.debug('   File analysis completed')
+		return 0
 
 	def PingNoS1_back(self,HTML,RAN,EPC,COTS_UE,InfraUE):
 		# SSH=sshconnection.SSHConnection()
@@ -1934,23 +2031,15 @@ class OaiCiTest():
 
 		return 0
 
-	def Iperf_analyzeV2Output(self, lock, UE_IPAddress, device_id, statusQueue, iperf_real_options,EPC,SSH):
+	def Iperf_analyzeV2Output(self, lock, UE_IPAddress, device_id, statusQueue, iperf_real_options,filename,SSH):
 
 		result = re.search('-u', str(iperf_real_options))
 		if result is None:
 			logging.debug('Into Iperf_analyzeV2TCPOutput client')
-			response = self.Iperf_analyzeV2TCPOutput(lock, UE_IPAddress, device_id, statusQueue, iperf_real_options,EPC,SSH)
+			response = self.Iperf_analyzeV2TCPOutput(lock, UE_IPAddress, device_id, statusQueue, iperf_real_options,filename,SSH)
 			logging.debug('Iperf_analyzeV2TCPOutput response returned value = ' + str(response))
 			return response
 
-		result = re.search('Server Report:', SSH.getBefore())
-		if result is None:
-			result = re.search('read failed: Connection refused', SSH.getBefore())
-			if result is not None:
-				logging.debug('\u001B[1;37;41m Could not connect to iperf server! \u001B[0m')
-			else:
-				logging.debug('\u001B[1;37;41m Server Report and Connection refused Not Found! \u001B[0m')
-			return -1
 		# Computing the requested bandwidth in float
 		result = re.search('-b (?P<iperf_bandwidth>[0-9\.]+)[KMG]', str(iperf_real_options))
 		if result is not None:
@@ -1969,7 +2058,19 @@ class OaiCiTest():
 				req_bandwidth = '%.1f Gbits/sec' % req_bw
 				req_bw = req_bw * 1000000000
 
-		result = re.search('Server Report:\\\\r\\\\n(?:|\[ *\d+\].*) (?P<bitrate>[0-9\.]+ [KMG]bits\/sec) +(?P<jitter>[0-9\.]+ ms) +(\d+\/..\d+) +(\((?P<packetloss>[0-9\.]+)%\))', SSH.getBefore())
+		client_file = open(filename, 'r')
+		#for line in client_file.readlines():
+		text = client_file.read()
+		result = re.search('Server Report:', str(text))
+		if result is None:
+			result = re.search('read failed: Connection refused', str(text))
+			if result is not None:
+				logging.debug('\u001B[1;37;41m Could not connect to iperf server! \u001B[0m')
+			else:
+				logging.debug('\u001B[1;37;41m Server Report and Connection refused Not Found! \u001B[0m')
+			return -1
+		
+		result = re.search('Server Report:\\\\r\\\\n(?:|\[ *\d+\].*) (?P<bitrate>[0-9\.]+ [KMG]bits\/sec) +(?P<jitter>[0-9\.]+ ms) +(\d+\/..\d+) +(\((?P<packetloss>[0-9\.]+)%\))', str(text))
 		if result is not None:
 			bitrate = result.group('bitrate')
 			packetloss = result.group('packetloss')
@@ -2016,8 +2117,10 @@ class OaiCiTest():
 			statusQueue.put(UE_IPAddress)
 			statusQueue.put(msg)
 			lock.release()
+			client_file.close()
 			return 0
 		else:
+			client_file.close()
 			return -2
 
 	def Iperf_analyzeV2Server(self, lock, UE_IPAddress, device_id, statusQueue, iperf_real_options, filename,type):
@@ -2598,21 +2701,71 @@ class OaiCiTest():
 
 	def IperfNoS1(self,HTML,RAN,EPC,COTS_UE,InfraUE):
 		iperf_time = self.Iperf_ComputeTime()
+		modified_options = self.Iperf_ComputeModifiedBW(0, 1)
+		print(str(modified_options))
+		iperf_bw = self.Iperf_ComputeBW(modified_options)
+		
 		server_on_enb = re.search('-R', str(self.iperf_args))
 		if server_on_enb is not None:
 			# UL Iperf
-			modified_options = self.Iperf_ComputeModifiedBW(0, 1)
-			print(str(modified_options))
-			iperf_bw = self.Iperf_ComputeBW(modified_options)
 			modified_options = modified_options.replace('-R','')
-			os.system('sed -i "s/<< dl_iperf_time >>/' + iperf_time + '/g" ../colosseum-cm/ansible/oai.yml')
-			os.system('sed -i "s/<< dl_iperf_rate >>/' + iperf_bw + '/g" ../colosseum-cm/ansible/oai.yml')
+			if self.runStage == 'Pre':
+				os.system('sed -i "s/<< ul_iperf_time >>/' + iperf_time + '/g" ../colosseum-cm/ansible/oai.yml')
+				os.system('sed -i "s/<< ul_iperf_rate >>/' + iperf_bw + '/g" ../colosseum-cm/ansible/oai.yml')
+				return
+			client_log_file = "../logfiles/ue-logs/iperf_client_UL.log"
+			server_log_file = "../logfiles/gnb-logs/iperf_server_UL.log"
 		else:
 			# DL Iperf
-			iperf_bw = self.Iperf_ComputeBW(self.iperf_args)
-			os.system('sed -i "s/<< ul_iperf_time >>/' + iperf_time + '/g" ../colosseum-cm/ansible/oai.yml')
-			os.system('sed -i "s/<< ul_iperf_rate >>/' + iperf_bw + '/g" ../colosseum-cm/ansible/oai.yml')
+			if self.runStage == 'Pre':
+				os.system('sed -i "s/<< dl_iperf_time >>/' + iperf_time + '/g" ../colosseum-cm/ansible/oai.yml')
+				os.system('sed -i "s/<< dl_iperf_rate >>/' + iperf_bw + '/g" ../colosseum-cm/ansible/oai.yml')
+				return
+			client_log_file = "../logfiles/gnb-logs/iperf_client_DL.log"
+			server_log_file = "../logfiles/ue-logs/iperf_server_DL.log"
+
+		status_queue = SimpleQueue()
+		lock = Lock()
+		if self.iperf_options == 'sink':
+			clientStatus = 0
+			status_queue.put(0)
+			status_queue.put('OAI-UE')
+			status_queue.put('10.0.1.2')
+			status_queue.put('Sink Test : no check')
+		else:
+			clientStatus = self.Iperf_analyzeV2Output(lock, '10.0.1.2', 'OAI-UE', status_queue, modified_options, client_log_file, 0)
+
+		if (clientStatus == -1):
+			# if (os.path.isfile('iperf_server_' + self.testCase_id + '.log')):
+			# 	os.remove('iperf_server_' + self.testCase_id + '.log')
+			# SSH.copyin(iServerIPAddr, iServerUser, iServerPasswd, '/tmp/tmp_iperf_server_' + self.testCase_id + '.log', 'iperf_server_' + self.testCase_id + '_OAI-UE.log')
+			# filename='iperf_server_' + self.testCase_id + '_OAI-UE.log'
+			self.Iperf_analyzeV2Server(lock, '10.0.1.2', 'OAI-UE', status_queue, modified_options, server_log_file, 0)
 	
+		iperf_noperf = False
+		if status_queue.empty():
+			iperf_status = False
+		else:
+			iperf_status = True
+		html_queue = SimpleQueue()
+		while (not status_queue.empty()):
+			count = status_queue.get()
+			if (count < 0):
+				iperf_status = False
+			if (count > 0):
+				iperf_noperf = True
+			device_id = status_queue.get()
+			ip_addr = status_queue.get()
+			message = status_queue.get()
+			html_cell = '<pre style="background-color:white">UE (' + device_id + ')\nIP Address  : ' + ip_addr + '\n' + message + '</pre>'
+			html_queue.put(html_cell)
+		if (iperf_noperf and iperf_status):
+			HTML.CreateHtmlTestRowQueue(self.iperf_args, 'PERF NOT MET', len(self.UEDevices), html_queue)
+		elif (iperf_status):
+			HTML.CreateHtmlTestRowQueue(self.iperf_args, 'OK', len(self.UEDevices), html_queue)
+		else:
+			HTML.CreateHtmlTestRowQueue(self.iperf_args, 'KO', len(self.UEDevices), html_queue)
+
 	def IperfNoS1_back(self,HTML,RAN,EPC,COTS_UE,InfraUE):
 		# SSH = sshconnection.SSHConnection()
 		# if RAN.eNBIPAddress == '' or RAN.eNBUserName == '' or RAN.eNBPassword == '' or self.UEIPAddress == '' or self.UEUserName == '' or self.UEPassword == '':
@@ -3317,7 +3470,7 @@ class OaiCiTest():
 		# 	HTML.CreateHtmlTestRow('N/A', 'OK', CONST.ALL_PROCESSES_OK)
 
 	def AnalyzeOAIUE(self,HTML,RAN,COTS_UE,EPC):
-		self.UELogFile="logfiles/ue-logs/ue.log"
+		self.UELogFile="../logfiles/ue-logs/ue.log"
 		if path.exists(self.UELogFile):
 			logging.debug('\u001B[1m Analyzing UE logfile \u001B[0m')
 			logStatus = self.AnalyzeLogFile_UE(self.UELogFile,HTML,RAN)
@@ -3329,27 +3482,27 @@ class OaiCiTest():
 				ueAction = 'Connection'
 			if (logStatus < 0):
 				logging.info('\u001B[1m' + ueAction + ' Failed \u001B[0m')
-				#HTML.htmlUEFailureMsg='<b>' + ueAction + ' Failed</b>\n' + HTML.htmlUEFailureMsg
-				#HTML.CreateHtmlTestRow('N/A', 'KO', logStatus, 'UE')
-				sys.exit('Failed Scenario')
+				HTML.htmlUEFailureMsg='<b>' + ueAction + ' Failed</b>\n' + HTML.htmlUEFailureMsg
+				HTML.CreateHtmlTestRow('N/A', 'KO', logStatus, 'UE')
+				#sys.exit('Failed Scenario')
 				if self.air_interface == 'lte-uesoftmodem':
 					# In case of sniffing on commercial eNBs we have random results
 					# Not an error then
 					if (logStatus != CONST.OAI_UE_PROCESS_COULD_NOT_SYNC) or (ueAction != 'Sniffing'):
 						self.Initialize_OAI_UE_args = ''
-						self.AutoTerminateUEandeNB(HTML,RAN,COTS_UE,EPC)
+						#self.AutoTerminateUEandeNB(HTML,RAN,COTS_UE,EPC)
 				else:
 					if (logStatus == CONST.OAI_UE_PROCESS_COULD_NOT_SYNC):
 						self.Initialize_OAI_UE_args = ''
-						self.AutoTerminateUEandeNB(HTML,RAN,COTS_UE,EPC)
+						#self.AutoTerminateUEandeNB(HTML,RAN,COTS_UE,EPC)
 			else:
 				logging.info('\u001B[1m' + ueAction + ' Completed \u001B[0m')
-				#HTML.htmlUEFailureMsg='<b>' + ueAction + ' Completed</b>\n' + HTML.htmlUEFailureMsg
-				#HTML.CreateHtmlTestRow('N/A', 'OK', CONST.ALL_PROCESSES_OK)
+				HTML.htmlUEFailureMsg='<b>' + ueAction + ' Completed</b>\n' + HTML.htmlUEFailureMsg
+				HTML.CreateHtmlTestRow('N/A', 'OK', CONST.ALL_PROCESSES_OK)
 			self.UELogFile = ''
 		else:
 			logging.info('\u001B[1m' + UELogFile + ' Not found \u001B[0m')
-			#HTML.CreateHtmlTestRow('N/A', 'OK', CONST.ALL_PROCESSES_OK)
+			HTML.CreateHtmlTestRow('N/A', 'OK', CONST.ALL_PROCESSES_OK)
 
 	def AutoTerminateUEandeNB(self,HTML,RAN,COTS_UE,EPC,InfraUE):
 		if (self.ADBIPAddress != 'none'):

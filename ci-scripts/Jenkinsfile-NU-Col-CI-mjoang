@@ -47,6 +47,7 @@ def mainPythonAllXmlFiles = ""
 def termUE = 0
 def termENB = 1
 def termStatusArray = new Boolean[2]
+def buildStageStatus = true
 
 pipeline {
     agent {

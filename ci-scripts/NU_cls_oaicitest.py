@@ -2059,6 +2059,9 @@ class OaiCiTest():
 				req_bw = req_bw * 1000000000
 
 		logging.debug('Iperf_analyzeV2Output requested bandwidth value = ' + str(req_bandwidth))
+		if (not os.path.isfile('./' + filename)):
+			logging.debug('Iperf client log file Not Found!')
+			return -1
 		client_file = open(filename, 'r')
 		#for line in client_file.readlines():
 		text = client_file.read()
@@ -2071,7 +2074,7 @@ class OaiCiTest():
 				logging.debug('\u001B[1;37;41m Server Report and Connection refused Not Found! \u001B[0m')
 			return -1
 		
-		result = re.search('Server Report:\\\\r\\\\n(?:|\[ *\d+\].*) (?P<bitrate>[0-9\.]+ [KMG]bits\/sec) +(?P<jitter>[0-9\.]+ ms) +(\d+\/..\d+) +(\((?P<packetloss>[0-9\.]+)%\))', str(text))
+		result = re.search('(?P<bitrate>[0-9\.]+ [KMG]bits\/sec) +(?P<jitter>[0-9\.]+ ms) +(\d+\/..\d+) +(\((?P<packetloss>[0-9\.]+)%\))', str(text))
 		logging.debug('Iperf_analyzeV2Output Server Report result = ' + str(result))
 		if result is not None:
 			bitrate = result.group('bitrate')
@@ -2151,6 +2154,9 @@ class OaiCiTest():
 				req_bandwidth = '%.1f Gbits/sec' % req_bw
 				req_bw = req_bw * 1000000000
 
+		if (not os.path.isfile('./' + filename)):
+			logging.debug('Iperf server log file Not Found!')
+			return -1
 		server_file = open(filename, 'r')
 		br_sum = 0.0
 		ji_sum = 0.0

@@ -111,11 +111,11 @@ pipeline {
         stage ("Build and Test") {
             steps {
                 script {
-                    sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
-                    dir ('colosseum-cm') {
-                       sh "git checkout oai-ci"
-                       sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
-                    }
+                    // sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+                    // dir ('colosseum-cm') {
+                    //    sh "git checkout oai-ci"
+                    //    sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
+                    // }
                     dir ('ci-scripts') {
                         // If not present picking a default XML file
                         if (params.pythonTestXmlFile == null) {
@@ -134,7 +134,7 @@ pipeline {
                         }
                         runStage = "Pre"
                         sh "python3 NU_main.py --mode=InitiateHtml --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --ADBIPAddress='none' ${mainPythonAllXmlFiles}  --runStage=${runStage}"
-                       String[] myXmlTestSuite = testXMLFile.split("\\r?\\n")
+                        String[] myXmlTestSuite = testXMLFile.split("\\r?\\n")
                         for (xmlFile in myXmlTestSuite) {
                             if (fileExists(xmlFile)) {
                                 try {

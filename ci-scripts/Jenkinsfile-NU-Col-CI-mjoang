@@ -111,11 +111,11 @@ pipeline {
         stage ("Build and Test") {
             steps {
                 script {
-                    //sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
-                    //dir ('colosseum-cm') {
-                    //    sh "git checkout oai-ci"
-                    //    sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
-                    //}
+                    sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+                    dir ('colosseum-cm') {
+                       sh "git checkout oai-ci"
+                       sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
+                    }
                     dir ('ci-scripts') {
                         // If not present picking a default XML file
                         if (params.pythonTestXmlFile == null) {
@@ -134,25 +134,25 @@ pipeline {
                         }
                         runStage = "Pre"
                         sh "python3 NU_main.py --mode=InitiateHtml --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --ADBIPAddress='none' ${mainPythonAllXmlFiles}  --runStage=${runStage}"
-                    //    String[] myXmlTestSuite = testXMLFile.split("\\r?\\n")
-                    //     for (xmlFile in myXmlTestSuite) {
-                    //         if (fileExists(xmlFile)) {
-                    //             try {
-                    //                 sh "python3 NU_main.py --mode=TesteNB --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --ADBIPAddress='none' --XMLTestFile=${xmlFile} --runStage=${runStage}"
-                    //                 //sh "python3 NU_main.py --mode=TesteNB --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --eNB_AllowMerge=${eNB_AllowMergeRequestProcess} --XMLTestFile=${xmlFile}"
-                    //                 //sh "python3 NU_main.py --mode=TesteNB --eNBSourceCodePath=${params.eNB_SourceCodePath} --UESourceCodePath=${params.eNB_SourceCodePath} --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNB_AllowMerge=${eNB_AllowMergeRequestProcess} --eNBTargetBranch=${params.eNB_TargetBranch} --XMLTestFile=${xmlFile}"
-                    //             } catch (Exception e) {
-                    //                 currentBuild.result = 'FAILURE'
-                    //                 buildStageStatus = false
-                    //             }
-                    //         }
-                    //     }
-                    //     //sh "python3 NU_main.py --mode=FinalizeHtml --finalStatus=${buildStageStatus} --eNBIPAddress=${params.eNB_IPAddress} --eNBUserName=${eNB_Username} --eNBPassword=${eNB_Password}"
-                    // //}
+                       String[] myXmlTestSuite = testXMLFile.split("\\r?\\n")
+                        for (xmlFile in myXmlTestSuite) {
+                            if (fileExists(xmlFile)) {
+                                try {
+                                    sh "python3 NU_main.py --mode=TesteNB --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --ADBIPAddress='none' --XMLTestFile=${xmlFile} --runStage=${runStage}"
+                                    //sh "python3 NU_main.py --mode=TesteNB --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNBTargetBranch=${params.eNB_TargetBranch} --eNB_AllowMerge=${eNB_AllowMergeRequestProcess} --XMLTestFile=${xmlFile}"
+                                    //sh "python3 NU_main.py --mode=TesteNB --eNBSourceCodePath=${params.eNB_SourceCodePath} --UESourceCodePath=${params.eNB_SourceCodePath} --eNBRepository=${GIT_URL} --eNBBranch=${params.eNB_Branch} --eNBCommitID=${GIT_COMMIT} --eNB_AllowMerge=${eNB_AllowMergeRequestProcess} --eNBTargetBranch=${params.eNB_TargetBranch} --XMLTestFile=${xmlFile}"
+                                } catch (Exception e) {
+                                    currentBuild.result = 'FAILURE'
+                                    buildStageStatus = false
+                                }
+                            }
+                        }
+                        //sh "python3 NU_main.py --mode=FinalizeHtml --finalStatus=${buildStageStatus} --eNBIPAddress=${params.eNB_IPAddress} --eNBUserName=${eNB_Username} --eNBPassword=${eNB_Password}"
+                    //}
                     }
-                    // dir ('colosseum-cm/ansible') {
-                    //     sh "ansible-playbook oai.yml -e 'ansible_python_interpreter=/usr/bin/python3'"
-                    // }
+                    dir ('colosseum-cm/ansible') {
+                        sh "ansible-playbook oai.yml -e 'ansible_python_interpreter=/usr/bin/python3'"
+                    }
                     dir ('ci-scripts') {
                         // If not present picking a default XML file
                         if (params.pythonTestXmlFile == null) {

@@ -1687,18 +1687,18 @@ class OaiCiTest():
 		html_queue.put(html_cell)
 		HTML.CreateHtmlTestRowQueue(self.ping_args, 'KO', len(self.UEDevices), html_queue)
 
-	def PingNoS1(self,HTML,RAN,EPC,COTS_UE,InfraUE):
-		ping_from_eNB = re.search('oaitun_enb1', str(self.ping_args))
+	def PingNoS1_SA(self,HTML,RAN,EPC,COTS_UE,InfraUE):
+		ping_from_UE = re.search('oaitun_ue1', str(self.ping_args))
 		ping_time = self.Ping_ComputeTime()
 		
 		if self.runStage == 'Pre':
-			if ping_from_eNB is not None:
+			if ping_from_UE is None:
 				os.system('sed -i "s/<< dl_ping_time >>/' + ping_time + '/g" ../colosseum-cm/ansible/oai.yml')
 			else:
 				os.system('sed -i "s/<< ul_ping_time >>/' + ping_time + '/g" ../colosseum-cm/ansible/oai.yml')
 			return
 
-		if ping_from_eNB is not None:
+		if ping_from_UE is None:
 			fileToAnalyze="../logfiles/gnb-logs/pingDL.log"
 			prefix="DL"
 		else:
@@ -1886,6 +1886,8 @@ class OaiCiTest():
 			os.kill(os.getppid(),signal.SIGUSR1)
 
 	def Ping(self,HTML,RAN,EPC,COTS_UE, InfraUE):
+		self.PingNoS1_SA(HTML,RAN,EPC,COTS_UE,InfraUE)
+		return
 		result = re.search('noS1', str(RAN.Initialize_eNB_args))
 		if result is not None:
 			self.PingNoS1(HTML,RAN,EPC,COTS_UE,InfraUE)
@@ -2707,7 +2709,7 @@ class OaiCiTest():
 		except:
 			os.kill(os.getppid(),signal.SIGUSR1)
 
-	def IperfNoS1(self,HTML,RAN,EPC,COTS_UE,InfraUE):
+	def IperfNoS1_SA(self,HTML,RAN,EPC,COTS_UE,InfraUE):
 		iperf_time = self.Iperf_ComputeTime()
 		modified_options = self.Iperf_ComputeModifiedBW(0, 1)
 		print(str(modified_options))
@@ -2732,24 +2734,30 @@ class OaiCiTest():
 			client_log_file = "../logfiles/gnb-logs/iperf_client_DL.log"
 			server_log_file = "../logfiles/ue-logs/iperf_server_DL.log"
 
+		result = re.search('noS1', str(RAN.Initialize_eNB_args))
+		if result is not None:
+			ue_ip_addr = '10.0.1.2'
+		else:
+			ue_ip_addr = '12.1.1.2'
+
 		status_queue = SimpleQueue()
 		lock = Lock()
 		if self.iperf_options == 'sink':
 			clientStatus = 0
 			status_queue.put(0)
 			status_queue.put('OAI-UE')
-			status_queue.put('10.0.1.2')
+			status_queue.put(ue_ip_addr)
 			status_queue.put('Sink Test : no check')
 		else:
 			
-			clientStatus = self.Iperf_analyzeV2Output(lock, '10.0.1.2', 'OAI-UE', status_queue, modified_options, client_log_file, 0)
+			clientStatus = self.Iperf_analyzeV2Output(lock, ue_ip_addr, 'OAI-UE', status_queue, modified_options, client_log_file, 0)
 
 		if (clientStatus == -1):
 			# if (os.path.isfile('iperf_server_' + self.testCase_id + '.log')):
 			# 	os.remove('iperf_server_' + self.testCase_id + '.log')
 			# SSH.copyin(iServerIPAddr, iServerUser, iServerPasswd, '/tmp/tmp_iperf_server_' + self.testCase_id + '.log', 'iperf_server_' + self.testCase_id + '_OAI-UE.log')
 			# filename='iperf_server_' + self.testCase_id + '_OAI-UE.log'
-			self.Iperf_analyzeV2Server(lock, '10.0.1.2', 'OAI-UE', status_queue, modified_options, server_log_file, 0)
+			self.Iperf_analyzeV2Server(lock, ue_ip_addr, 'OAI-UE', status_queue, modified_options, server_log_file, 0)
 	
 		iperf_noperf = False
 		if status_queue.empty():
@@ -2902,9 +2910,11 @@ class OaiCiTest():
 	# 		self.AutoTerminateUEandeNB(HTML,RAN,COTS_UE,EPC,InfraUE)
 
 	def Iperf(self,HTML,RAN,EPC,COTS_UE, InfraUE):
+		self.IperfNoS1_SA(HTML,RAN,EPC,COTS_UE,InfraUE)
+		return
 		result = re.search('noS1', str(RAN.Initialize_eNB_args))
 		if result is not None:
-			self.IperfNoS1(HTML,RAN,EPC,COTS_UE,InfraUE)
+			self.IperfNoS1_SA(HTML,RAN,EPC,COTS_UE,InfraUE)
 			return
 		if EPC.IPAddress == '' or EPC.UserName == '' or EPC.Password == '' or EPC.SourceCodePath == '' or self.ADBIPAddress == '' or self.ADBUserName == '' or self.ADBPassword == '':
 			HELP.GenericHelp(CONST.Version)

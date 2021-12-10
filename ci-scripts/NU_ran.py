@@ -416,8 +416,10 @@ class RANManagement():
 			eNBinNoS1 = True
 			logging.debug('\u001B[1m gNB is in noS1 configuration \u001B[0m')
 			os.system('sed -i "s/<< noS1 >>/1/g" ../colosseum-cm/ansible/oai.yml')
+			os.system('sed -i "s/<< num_nodes >>/2/g" ../colosseum-cm/ansible/oai.yml')
 		else:
 			os.system('sed -i "s/<< noS1 >>/0/g" ../colosseum-cm/ansible/oai.yml')
+			os.system('sed -i "s/<< num_nodes >>/3/g" ../colosseum-cm/ansible/oai.yml')
 		#elif self.runStage == 'Post':
 			# do Post stuff
 		#else:

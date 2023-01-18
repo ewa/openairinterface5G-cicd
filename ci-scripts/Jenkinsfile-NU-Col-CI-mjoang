@@ -96,7 +96,8 @@ pipeline {
         stage ("Build and Test") {
             steps {
                 script {
-                    sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+                    // sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
+		    sh "git clone https://github.com/open-6g/colosseum-cm.git"
                     dir ('colosseum-cm') {
                        sh "git checkout oai-ci"
                        sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"

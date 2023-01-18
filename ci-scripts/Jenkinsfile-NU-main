@@ -53,7 +53,7 @@ pipeline {
         //gitLabConnection('OAI Gitlab fork')
         //ansiColor('xterm')
         //gitlabBuilds(builds: [
-            "print latest commit info"
+         //   "print latest commit info"
             //"Build RHEL8 AMF Image",
             //"Static Code Analysis",
             //"Code Formatting Checker",

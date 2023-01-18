@@ -316,7 +316,7 @@ pipeline {
     // post {
     //     always {
     //         script {
-    //             //finalizeSlaveJob('Col-CI')
+    //             //finalizeWorkerJob('Col-CI')
     //             sh "rm -rf colosseum-cm@tmp"
     //             sh "rm -rf colosseum-cm"
     //         }

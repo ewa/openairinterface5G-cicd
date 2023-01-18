@@ -87,18 +87,18 @@ pipeline {
         stage ("Test gNB - nrUE - Colosseum") {
             steps {
                 script {
-                    triggerSlaveJob ('Col-CI-New', 'Test-gNB-nrUE-Band78')
+                    triggerWorkerJob ('Col-CI-New', 'Test-gNB-nrUE-Band78')
                 }
             }
         }
     }
 }
 
-// // ----  Slave Job functions
+// // ----  Worker Job functions
 
-def triggerSlaveJob (jobName, gitlabStatusName) {
+def triggerWorkerJob (jobName, gitlabStatusName) {
     // Workaround for the "cancelled" GitLab pipeline notification
-    // The slave job is triggered with the propagate false so the following commands are executed
+    // The worker job is triggered with the propagate false so the following commands are executed
     // Its status is now PASS/SUCCESS from a stage pipeline point of view
     // localStatus variable MUST be analyzed to properly assess the status
     localStatus = build job: jobName,
@@ -110,20 +110,20 @@ def triggerSlaveJob (jobName, gitlabStatusName) {
             string(name: 'eNB_TargetBranch', value: String.valueOf(env.gitlabTargetBranch))
         ], propagate: false
     localResult = localStatus.getResult()
-    echo "${jobName} Slave Job status is ${localResult}"
+    echo "${jobName} Worker Job status is ${localResult}"
     //gitlabCommitStatus(name: gitlabStatusName) {
         if (localStatus.resultIsBetterOrEqualTo('SUCCESS')) {
-           echo "${jobName} Slave Job is OK"
+           echo "${jobName} Worker Job is OK"
         } else {
-           echo "${jobName} Slave Job is KO"
+           echo "${jobName} Worker Job is KO"
            sh "ci-scripts/fail.sh"
         }
     //}
 }
 
-// def triggerSlaveJobNoGitLab (jobName) {
+// def triggerWorkerJobNoGitLab (jobName) {
 //     // Workaround for the "cancelled" GitLab pipeline notification
-//     // The slave job is triggered with the propagate false so the following commands are executed
+//     // The worker job is triggered with the propagate false so the following commands are executed
 //     // Its status is now PASS/SUCCESS from a stage pipeline point of view
 //     // localStatus variable MUST be analyzed to properly assess the status
 //     localStatus = build job: jobName,
@@ -135,18 +135,18 @@ def triggerSlaveJob (jobName, gitlabStatusName) {
 //             string(name: 'eNB_TargetBranch', value: String.valueOf(env.gitlabTargetBranch))
 //         ], propagate: false
 //     localResult = localStatus.getResult()
-//     echo "${jobName} Slave Job status is ${localResult}"
+//     echo "${jobName} Worker Job status is ${localResult}"
 //     if (localStatus.resultIsBetterOrEqualTo('SUCCESS')) {
-//        echo "${jobName} Slave Job is OK"
+//        echo "${jobName} Worker Job is OK"
 //     } else {
-//        echo "${jobName} Slave Job is KO"
+//        echo "${jobName} Worker Job is KO"
 //        sh "ci-scripts/fail.sh"
 //     }
 // }
 
-def finalizeSlaveJob(jobName) {
+def finalizeWorkerJob(jobName) {
     // In case of any non-success, we are retrieving the HTML report of the last completed
-    // slave job. The only drop-back is that we may retrieve the HTML report of a previous build
+    // worker job. The only drop-back is that we may retrieve the HTML report of a previous build
     fileName = "test_results-${jobName}.html"
     if (!fileExists(fileName)) {
         copyArtifacts(projectName: jobName,

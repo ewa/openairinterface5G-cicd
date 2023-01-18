@@ -50,15 +50,15 @@ pipeline {
     options {
         disableConcurrentBuilds()
         timestamps()
-        gitLabConnection('OAI Gitlab fork')
+        //gitLabConnection('OAI Gitlab fork')
         //ansiColor('xterm')
-        gitlabBuilds(builds: [
+        //gitlabBuilds(builds: [
             "print latest commit info"
             //"Build RHEL8 AMF Image",
             //"Static Code Analysis",
             //"Code Formatting Checker",
             //"Test with DsTester"
-            ])
+        //    ])
 
     }
 
@@ -68,7 +68,7 @@ pipeline {
         stage ("print latest commit info") {
             steps {
                 script {
-                    gitlabCommitStatus(name: "Print latest commit info") {
+                    //gitlabCommitStatus(name: "Print latest commit info") {
                         echo "Building on: "
                         echo "  Repository -- ${GIT_URL}"
                         echo "  Branch -- ${GIT_BRANCH}"
@@ -79,7 +79,7 @@ pipeline {
                         echo "ENV source branch: ${env.gitlabSourceBranch}"
                         echo "ENV target branch: ${env.gitlabTargetBranch}"
                         //sh 'printenv'
-                    }
+                    //}
                 }
             }
         }
@@ -87,7 +87,7 @@ pipeline {
         stage ("Test gNB - nrUE - Colosseum") {
             steps {
                 script {
-                    triggerSlaveJob ('Col-CI', 'Test-gNB-nrUE-Band78')
+                    triggerSlaveJob ('Col-CI-New', 'Test-gNB-nrUE-Band78')
                 }
             }
         }
@@ -111,14 +111,14 @@ def triggerSlaveJob (jobName, gitlabStatusName) {
         ], propagate: false
     localResult = localStatus.getResult()
     echo "${jobName} Slave Job status is ${localResult}"
-    gitlabCommitStatus(name: gitlabStatusName) {
+    //gitlabCommitStatus(name: gitlabStatusName) {
         if (localStatus.resultIsBetterOrEqualTo('SUCCESS')) {
            echo "${jobName} Slave Job is OK"
         } else {
            echo "${jobName} Slave Job is KO"
            sh "ci-scripts/fail.sh"
         }
-    }
+    //}
 }
 
 // def triggerSlaveJobNoGitLab (jobName) {

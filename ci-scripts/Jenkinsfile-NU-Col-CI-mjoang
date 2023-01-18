@@ -19,21 +19,6 @@
  * For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
-
-// Abstraction function to send social media messages:
-// like on Slack or Mattermost
-// def sendSocialMediaMessage(pipeChannel, pipeColor, pipeMessage) {
-//     if (params.pipelineUsesSlack != null) {
-//         if (params.pipelineUsesSlack) {
-//             slackSend channel: pipeChannel, color: pipeColor, message: pipeMessage
-//         }
-//     }
-// }
-
-// def doFlexranCtrlTest = false
-
-// // Location of the executor node
-//def nodeExecutor = params.nodeExecutor
 def testXMLFile = params.pythonTestXmlFile
 def mainPythonAllXmlFiles = ""
 
@@ -56,23 +41,23 @@ pipeline {
     options {
         disableConcurrentBuilds()
         timestamps()
-        gitLabConnection('OAI Gitlab fork')
+        //gitLabConnection('OAI Gitlab fork')
     }
     stages {
         stage ("print latest commit info") {
             steps {
-                script {
-                    gitlabCommitStatus(name: "Print latest commit info") {
-                        echo "Building on: "
-                        echo "  Repository -- ${GIT_URL}"
-                        echo "  Branch -- ${GIT_BRANCH}"
-                        echo "  Commit -- ${GIT_COMMIT}"
-                        echo "ENV eNB_mergeRequest: ${params.eNB_mergeRequest}"
-                        echo "ENV eNB_Repository: ${params.eNB_Repository}"
-                        echo "ENV source branch: ${params.eNB_Branch}"
-                        echo "ENV target branch: ${params.eNB_TargetBranch}"
-                    }
-                }
+                // script {
+                //     gitlabCommitStatus(name: "Print latest commit info") {
+                //         echo "Building on: "
+                //         echo "  Repository -- ${GIT_URL}"
+                //         echo "  Branch -- ${GIT_BRANCH}"
+                //         echo "  Commit -- ${GIT_COMMIT}"
+                //         echo "ENV eNB_mergeRequest: ${params.eNB_mergeRequest}"
+                //         echo "ENV eNB_Repository: ${params.eNB_Repository}"
+                //         echo "ENV source branch: ${params.eNB_Branch}"
+                //         echo "ENV target branch: ${params.eNB_TargetBranch}"
+                //     }
+                // }
             }
         }
         

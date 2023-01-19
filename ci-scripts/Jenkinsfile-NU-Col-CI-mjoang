@@ -97,9 +97,14 @@ pipeline {
             steps {
                 script {
                     // sh "git clone https://gitlab.com/shweta.shrivastava/colosseum-cm.git"
-		    sh "git clone https://github.com/open-6g/colosseum-cm.git"
+		    // sh "git clone 
+		    checkout scmGit(branches: [[name: 'oai-ci']],
+				    userRemoteConfigs: [ 
+			    [ credentialsId: 'colosseum-cm-jenkins-access-token',
+			     url:'https://github.com/open-6g/colosseum-cm.git']
+			])
                     dir ('colosseum-cm') {
-                       sh "git checkout oai-ci"
+                      // sh "git checkout oai-ci"
                        sh "./bootstrap.sh ${GIT_URL} ${params.eNB_Branch} ${GIT_COMMIT}"
                     }
                     dir ('ci-scripts') {

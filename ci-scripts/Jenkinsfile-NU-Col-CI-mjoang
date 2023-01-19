@@ -143,7 +143,11 @@ pipeline {
                     //}
                     }
                     dir ('colosseum-cm/ansible') {
-                        sh "ansible-playbook oai.yml -e 'ansible_python_interpreter=/usr/bin/python3'"
+			withCredentials([usernamePassword(credentialsId:'Open6G-oai-Jenkings-fine-grained',
+							  usernameVariable:'git_oai_user',
+							  passwordVariable:'git_oai_pass')]){
+                            sh "ansible-playbook oai.yml -e 'ansible_python_interpreter=/usr/bin/python3' --extra-vars='git_oai_user=$git_oai_user git_oai_pass=$git_oai_pass'"
+			}
                     }
                     dir ('ci-scripts') {
                         // If not present picking a default XML file

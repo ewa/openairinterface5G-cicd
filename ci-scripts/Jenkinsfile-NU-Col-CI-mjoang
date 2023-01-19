@@ -147,7 +147,7 @@ pipeline {
 							  usernameVariable:'git_oai_user',
 							  passwordVariable:'git_oai_pass')]){
                             //sh "ansible-playbook oai.yml -e 'ansible_python_interpreter=/usr/bin/python3' --extra-vars='git_oai_user=$git_oai_user git_oai_pass=$git_oai_pass'" // disabled for now b/c we're not using those credentials and that way of passing them is a security concern.
-			    sh "ansible-playbook oai.yml -vv -e 'ansible_python_interpreter=/usr/bin/python3'"
+			    sh "ansible-playbook oai.yml -vvv -e 'ansible_python_interpreter=/usr/bin/python3'"
 			}
                     }
                     dir ('ci-scripts') {

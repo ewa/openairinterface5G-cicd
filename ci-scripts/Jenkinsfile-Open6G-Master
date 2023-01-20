@@ -65,7 +65,7 @@ pipeline {
     //properties([[$class: 'GitLabConnectionProperty', gitLabConnection: 'OAI GitLab Fork']])
 
     stages {
-        stage ("print latest commit info") {
+        stage ("Display context variables") {
             steps {
                 script {
                     //gitlabCommitStatus(name: "Print latest commit info") {
@@ -84,10 +84,10 @@ pipeline {
             }
         }
 
-        stage ("Test gNB - nrUE - Colosseum") {
+        stage ("Build in worker job") {
             steps {
                 script {
-                    triggerWorkerJob ('Col-CI-New', 'Test-gNB-nrUE-Band78')
+                    triggerWorkerJob ('Open6G Colosseum Worker', 'Test-gNB-nrUE-Band78')
                 }
             }
         }

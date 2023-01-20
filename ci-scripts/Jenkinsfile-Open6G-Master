@@ -78,9 +78,11 @@ pipeline {
                         echo "ENV branch: ${env.gitlabBranch}"
                         echo "ENV source branch: ${env.gitlabSourceBranch}"
                         echo "ENV target branch: ${env.gitlabTargetBranch}"
-                        //sh 'printenv'
+                        sh 'printenv'
                     //}
                 }
+		groovyVars = [:] << getBinding().getVariables()
+		groovyVars.each  {k,v -> print "$k = $v"}
             }
         }
 
